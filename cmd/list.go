@@ -23,6 +23,12 @@ import (
 	"path/filepath"
 	"log"
 	"errors"
+	"github.com/charmbracelet/lipgloss"
+	"syscall"
+	"unsafe"
+	"strconv"
+	"strings"
+	"sort"
 )
 
 // listCmd represents the list command
@@ -38,6 +44,7 @@ var listCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(listCmd)
 }
+
 
 func List(){
 	// Should read from memoDir but assume it for now
@@ -62,8 +69,64 @@ func List(){
 			log.Fatalf("Error reading %s with error %v", memoDir, err)
 		}
 
+		// Sort the files before further processing
+		sort.Slice(files, func(i, j int) bool {
+			numI, _ := strconv.Atoi(strings.SplitN(files[i].Name(), "-", 2)[0])
+			numJ, _ := strconv.Atoi(strings.SplitN(files[j].Name(), "-", 2)[0])
+			return numI < numJ
+		})
+		var memoList string
 		for _, file := range files {
-			fmt.Println(file.Name())
+			if !file.IsDir() {
+				// Get the memo number
+				numberStr := strings.SplitN(file.Name(), "-", 2)[0]
+				number, err := strconv.Atoi(numberStr)
+				if err != nil {
+					log.Printf("Error getting memo number from file %s with error code %v", file.Name(), err)
+					continue
+				}
+
+				// Read the first line of the file
+				content, err := os.ReadFile(filepath.Join(memoDir, file.Name()))
+				if err != nil {
+					log.Fatal("Error reading content from %s: %v", file.Name(), err)
+					continue
+				}
+
+				firstLine := strings.SplitN(string(content), "\n", 2)[0]
+				firstLine = strings.TrimPrefix(firstLine, "#")
+				memoInfo := fmt.Sprintf("Memo %d: %s", number, strings.TrimSpace(firstLine))
+				memoList += "\n" + memoInfo
+			}
 		}
+
+		terminalWidth, _, err := terminalSize(int(syscall.Stdin))
+		if err != nil {
+			// Default to 80 if unable to determine terminal width
+			terminalWidth = 80
+		}
+
+		var style = lipgloss.NewStyle().
+	    Bold(true).
+    	Foreground(lipgloss.Color("#FAFAFA")).
+	    Background(lipgloss.Color("#7D56F4")).
+    	PaddingTop(2).
+		PaddingBottom(2).
+    	PaddingLeft(4).
+	    Width(terminalWidth)
+
+		fmt.Println(style.Render(memoList))
+
 	}
+}
+
+func terminalSize(fd int) (int, int, error) {
+	var dimensions [4]uint16
+
+	_, _, errno := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(&dimensions)), 0, 0, 0)
+	if errno != 0 {
+		return 0, 0, errno
+	}
+
+	return int(dimensions[1]), int(dimensions[0]), nil
 }
