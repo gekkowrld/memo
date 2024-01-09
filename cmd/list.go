@@ -54,6 +54,7 @@ func List(){
 		log.Fatal(err)
 	}
 
+	// Use absolute path instead of relative path
 	memoDir := filepath.Join("/", userHomeDir, "/memo")
 
 	dirExists := true

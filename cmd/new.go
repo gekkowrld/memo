@@ -19,7 +19,7 @@ import (
 var newCmd = &cobra.Command{
 	Use:   "new",
 	Short: "Add a new memo",
-	Long:  `Add a new memo!`,
+	Long:  `Add something memorable to your collection of memos`,
 	Run: func(cmd *cobra.Command, args []string) {
 		title()
 	},
