@@ -1,25 +1,25 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-	"errors"
-	"path/filepath"
 )
 
 var newCmd = &cobra.Command{
 	Use:   "new",
 	Short: "Add a new memo",
-	Long:  `Add a new memo!`,
+	Long:  `Add something memorable to your collection of memos`,
 	Run: func(cmd *cobra.Command, args []string) {
 		title()
 	},
@@ -107,7 +107,7 @@ func openEditor(fileName string, title string) {
 	// Write some content to the file before opening
 	err := os.WriteFile(fileName, []byte(title), 0644)
 	if err != nil {
-		log.Fatal (err)
+		log.Fatal(err)
 	}
 
 	// Run the editor with the specified file
@@ -121,4 +121,3 @@ func openEditor(fileName string, title string) {
 		log.Fatalf("%s exited with error, couldn't open %s: %v", editor, fileName, err)
 	}
 }
-

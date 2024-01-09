@@ -17,25 +17,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 	"path/filepath"
-	"log"
-	"errors"
-	"github.com/charmbracelet/lipgloss"
-	"syscall"
-	"unsafe"
+	"sort"
 	"strconv"
 	"strings"
-	"sort"
+	"syscall"
+	"unsafe"
 )
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List the memos already created",
-	Long: `List the memos that you have already crated in a list form`,
+	Long:  `List the memos that you have already crated in a list form`,
 	Run: func(cmd *cobra.Command, args []string) {
 		List()
 	},
@@ -45,15 +45,15 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 }
 
-
-func List(){
+func List() {
 	// Should read from memoDir but assume it for now
-	
+
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Use absolute path instead of relative path
 	memoDir := filepath.Join("/", userHomeDir, "/memo")
 
 	dirExists := true
@@ -107,13 +107,13 @@ func List(){
 		}
 
 		var style = lipgloss.NewStyle().
-	    Bold(true).
-    	Foreground(lipgloss.Color("#FAFAFA")).
-	    Background(lipgloss.Color("#7D56F4")).
-    	PaddingTop(2).
-		PaddingBottom(2).
-    	PaddingLeft(4).
-	    Width(terminalWidth)
+			Bold(true).
+			Foreground(lipgloss.Color("#FAFAFA")).
+			Background(lipgloss.Color("#7D56F4")).
+			PaddingTop(2).
+			PaddingBottom(2).
+			PaddingLeft(4).
+			Width(terminalWidth)
 
 		fmt.Println(style.Render(memoList))
 

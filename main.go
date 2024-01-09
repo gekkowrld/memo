@@ -19,5 +19,6 @@ package main
 import "github.com/gekkowrld/memo/cmd"
 
 func main() {
+	// Main execution point
 	cmd.Execute()
 }
