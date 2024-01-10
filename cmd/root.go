@@ -26,9 +26,6 @@ var rootCmd = &cobra.Command{
 	Use:   "memo",
 	Short: "Document your life in style",
 	Long:  `Document your life in style`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
 func Execute() {
