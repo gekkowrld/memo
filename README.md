@@ -34,5 +34,3 @@ Use "memo [command] --help" for more information about a command.
 ## License
 
 [GNU GPL](./LICENSE)
-
-
