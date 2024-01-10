@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strconv"
-	"fmt"
 )
 
 // FileExists checks if a file exists.
@@ -25,10 +25,9 @@ func DirectoryExists(dirName string) bool {
 }
 
 func ConvertToString(value any) (string, error) {
-    val, err := strconv.Unquote(strconv.Quote(value.(string)))
-    if err != nil {
-        return "", fmt.Errorf("error converting value to string: %v", err)
-    }
-    return val, nil
+	val, err := strconv.Unquote(strconv.Quote(value.(string)))
+	if err != nil {
+		return "", fmt.Errorf("error converting value to string: %v", err)
+	}
+	return val, nil
 }
-

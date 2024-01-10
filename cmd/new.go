@@ -40,7 +40,7 @@ func title() {
 }
 
 func createFileName(title string) string {
-	
+
 	// Convert from an interface (or 'any') to string
 	memoDir, err := strconv.Unquote(strconv.Quote(getKeyValue("MemoDir").(string)))
 	if err != nil {
