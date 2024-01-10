@@ -26,8 +26,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"syscall"
-	"unsafe"
 )
 
 // listCmd represents the list command
@@ -102,12 +100,7 @@ func List() {
 			}
 		}
 
-		terminalWidth, _, err := terminalSize(int(syscall.Stdin))
-		if err != nil {
-			// Default to 80 if unable to determine terminal width
-			terminalWidth = 80
-		}
-
+		terminalWidth := CalcTermSize()
 		var style = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("#FAFAFA")).
@@ -122,13 +115,3 @@ func List() {
 	}
 }
 
-func terminalSize(fd int) (int, int, error) {
-	var dimensions [4]uint16
-
-	_, _, errno := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(&dimensions)), 0, 0, 0)
-	if errno != 0 {
-		return 0, 0, errno
-	}
-
-	return int(dimensions[1]), int(dimensions[0]), nil
-}

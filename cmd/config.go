@@ -29,6 +29,8 @@ import (
 	"reflect"
 	"strconv"
 	"time"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 )
 
 // configCmd represents the config command
@@ -38,18 +40,28 @@ var configCmd = &cobra.Command{
 	Long:  `Configure how memo works and what to use `,
 	Run: func(cmd *cobra.Command, args []string) {
 		editFlag := cmd.Flag("edit").Changed
+		viewFlag := cmd.Flag("view").Changed
+		defaultFlag := getKeyValue("EditConfig")
 
 		if editFlag {
 			editConfig()
+		} else if viewFlag {
+			viewConfig()
 		} else {
-			editConfig()
+			if defaultFlag.(bool) {
+				editConfig()
+			} else {
+				viewConfig()
+			}
 		}
+			
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(configCmd)
 	configCmd.PersistentFlags().BoolP("edit", "e", false, "Edit the config file")
+	configCmd.PersistentFlags().BoolP("view", "v", false, "View the configuration file")
 }
 
 type Config struct {
@@ -58,6 +70,7 @@ type Config struct {
 	ListFGColour string `toml:"listfgcolour"`
 	ListBGColour string `toml:"listbgcolour"`
 	DisplayWidth int    `toml:"displaywidth"`
+	EditConfig   bool   `toml:"editconfig"`
 	// A specialkey "config_dir" is where this config file lives
 	// it will be useless (redundant even) to add it in the file
 }
@@ -113,7 +126,7 @@ func editConfig() {
 	}
 	form := huh.NewForm(
 		huh.NewGroup(huh.NewNote().
-			Title("memo").
+			Title("Memo - Describe your life in pure beauty").
 			Description("You are now editing your config file")),
 
 		huh.NewGroup(
@@ -123,6 +136,16 @@ func editConfig() {
 			huh.NewInput().
 				Title("Editor").
 				Value(&conf.Editor),
+			huh.NewInput().
+				Title("Background Colour").
+				Value(&conf.ListFGColour),
+			huh.NewInput().
+				Title("Foregroud Colour").
+				Value(&conf.ListBGColour),
+			huh.NewSelect[bool]().
+				Options(huh.NewOptions(true, false)...).
+				Value(&conf.EditConfig).
+				Title("Edit by default when calling config"),
 		),
 		huh.NewGroup(huh.NewConfirm().
 			Title("Would you like to save your configs?").
@@ -172,6 +195,52 @@ func saveConfigToFile(filename string, conf Config) error {
 	}
 
 	return nil
+}
+
+func viewConfig() {
+	cellSize := CalcTermSize() / 2 - 5
+
+	const (
+	purple    = lipgloss.Color("99")
+	gray      = lipgloss.Color("245")
+	lightGray = lipgloss.Color("241")
+	)
+	re := lipgloss.NewRenderer(os.Stdout)
+		var (
+		// HeaderStyle is the lipgloss style used for the table headers.
+		HeaderStyle = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
+		// CellStyle is the base lipgloss style used for the table rows.
+		CellStyle = re.NewStyle().Padding(0, 1).Width(cellSize)
+		// OddRowStyle is the lipgloss style used for odd-numbered table rows.
+		OddRowStyle = CellStyle.Copy().Foreground(gray)
+		// EvenRowStyle is the lipgloss style used for even-numbered table rows.
+		EvenRowStyle = CellStyle.Copy().Foreground(lightGray)
+		// BorderStyle is the lipgloss style used for the table border.
+		//BorderStyle = lipgloss.NewStyle().Foreground(purple)
+	)
+	memoDir := getKeyValue("MemoDir").(string)
+	
+	rows := [][]string {
+		{"Memo Directory", memoDir},
+	}
+
+	di := table.New().
+		Border(lipgloss.ThickBorder()).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			switch {
+				case row == 0:
+					return HeaderStyle
+				case row%2 == 0:
+					return EvenRowStyle
+				default:
+					return OddRowStyle
+			}
+		}).
+		Headers("Key", "Value").
+		Rows(rows...)
+
+	fmt.Println(di)
 }
 
 func getDefaultMemoDir() string {

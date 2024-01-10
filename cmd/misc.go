@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"syscall"
+	"unsafe"
 )
 
 // FileExists checks if a file exists.
@@ -30,4 +32,26 @@ func ConvertToString(value any) (string, error) {
 		return "", fmt.Errorf("error converting value to string: %v", err)
 	}
 	return val, nil
+}
+
+
+func TerminalSize(fd int) (int, int, error) {
+	var dimensions [4]uint16
+
+	_, _, errno := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(&dimensions)), 0, 0, 0)
+	if errno != 0 {
+		return 0, 0, errno
+	}
+
+	return int(dimensions[1]), int(dimensions[0]), nil
+}
+
+func CalcTermSize() int {
+		terminalWidth, _, err := TerminalSize(int(syscall.Stdin))
+		if err != nil {
+			// Default to 80 if unable to determine terminal width
+			terminalWidth = 80
+		}
+
+	return terminalWidth
 }
