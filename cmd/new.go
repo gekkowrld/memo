@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
@@ -41,23 +40,12 @@ func title() {
 }
 
 func createFileName(title string) string {
-	// Get the user's home directory
-	userHomeDir, err := os.UserHomeDir()
+	
+	// Convert from an interface (or 'any') to string
+	memoDir, err := strconv.Unquote(strconv.Quote(getKeyValue("MemoDir").(string)))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error converting MemoDir to string: %v", err)
 	}
-
-	// Define the memo directory
-	memoDir := userHomeDir + "/memo"
-
-	// Check if the memoDir exists else create it
-	if _, err := os.Stat(memoDir); errors.Is(err, os.ErrNotExist) {
-		err := os.MkdirAll(memoDir, os.ModePerm)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
 	// Read existing files in the memo directory
 	files, err := os.ReadDir(memoDir)
 	if err != nil {
@@ -98,14 +86,17 @@ func createFileName(title string) string {
 }
 
 func openEditor(fileName string, title string) {
-	// Assume that the editor in this case is vim
-	editor := "vim"
+
+	editor, err := strconv.Unquote(strconv.Quote(getKeyValue("Editor").(string)))
+	if err != nil {
+		log.Fatalf("Error converting Editor to string: %v", err)
+	}
 
 	// Format the title string
-	title = "# " + title
+	title = "# " + title + "\n\n"
 
 	// Write some content to the file before opening
-	err := os.WriteFile(fileName, []byte(title), 0644)
+	err = os.WriteFile(fileName, []byte(title), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
