@@ -8,7 +8,7 @@ It is inspired by:
 ## Installation
 
 ```bash
-go install github.com/mattn/memo@latest
+go install github.com/gekkowrld/memo@latest
 ```
 
 ## Usage
