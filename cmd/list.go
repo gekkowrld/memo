@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
@@ -27,8 +26,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"syscall"
-	"unsafe"
 )
 
 // listCmd represents the list command
@@ -46,21 +43,13 @@ func init() {
 }
 
 func List() {
-	// Should read from memoDir but assume it for now
 
-	userHomeDir, err := os.UserHomeDir()
+	memoDir, err := strconv.Unquote(strconv.Quote(getKeyValue("MemoDir").(string)))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error converting MemoDir to string: %v", err)
 	}
 
-	// Use absolute path instead of relative path
-	memoDir := filepath.Join("/", userHomeDir, "/memo")
-
-	dirExists := true
-
-	if _, err := os.Stat(memoDir); errors.Is(err, os.ErrNotExist) {
-		dirExists = false
-	}
+	dirExists := DirectoryExists(memoDir)
 
 	if dirExists {
 
@@ -85,27 +74,33 @@ func List() {
 					log.Printf("Error getting memo number from file %s with error code %v", file.Name(), err)
 					continue
 				}
-
-				// Read the first line of the file
 				content, err := os.ReadFile(filepath.Join(memoDir, file.Name()))
 				if err != nil {
 					log.Fatal("Error reading content from %s: %v", file.Name(), err)
 					continue
 				}
 
-				firstLine := strings.SplitN(string(content), "\n", 2)[0]
-				firstLine = strings.TrimPrefix(firstLine, "#")
-				memoInfo := fmt.Sprintf("Memo %d: %s", number, strings.TrimSpace(firstLine))
+				lines := strings.Split(string(content), "\n")
+
+				var firstNonSpaceLine string
+				for _, line := range lines {
+					trimmedLine := strings.TrimSpace(line)
+					if trimmedLine != "" {
+						firstNonSpaceLine = trimmedLine
+						break
+					}
+				}
+				if firstNonSpaceLine == "" {
+					firstNonSpaceLine = "No title for this file"
+				}
+
+				firstNonSpaceLine = strings.TrimPrefix(firstNonSpaceLine, "#")
+				memoInfo := fmt.Sprintf("Memo %d: %s", number, strings.TrimSpace(firstNonSpaceLine))
 				memoList += "\n" + memoInfo
 			}
 		}
 
-		terminalWidth, _, err := terminalSize(int(syscall.Stdin))
-		if err != nil {
-			// Default to 80 if unable to determine terminal width
-			terminalWidth = 80
-		}
-
+		terminalWidth := CalcTermSize()
 		var style = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("#FAFAFA")).
@@ -118,15 +113,4 @@ func List() {
 		fmt.Println(style.Render(memoList))
 
 	}
-}
-
-func terminalSize(fd int) (int, int, error) {
-	var dimensions [4]uint16
-
-	_, _, errno := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TIOCGWINSZ), uintptr(unsafe.Pointer(&dimensions)), 0, 0, 0)
-	if errno != 0 {
-		return 0, 0, errno
-	}
-
-	return int(dimensions[1]), int(dimensions[0]), nil
 }
