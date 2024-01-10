@@ -210,7 +210,7 @@ func viewConfig() {
 		// HeaderStyle is the lipgloss style used for the table headers.
 		HeaderStyle = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
 		// CellStyle is the base lipgloss style used for the table rows.
-		CellStyle = re.NewStyle().Padding(0, 1).Width(cellSize)
+		CellStyle = re.NewStyle().Padding(1, 2).Width(cellSize)
 		// OddRowStyle is the lipgloss style used for odd-numbered table rows.
 		OddRowStyle = CellStyle.Copy().Foreground(gray)
 		// EvenRowStyle is the lipgloss style used for even-numbered table rows.
@@ -219,9 +219,26 @@ func viewConfig() {
 		//BorderStyle = lipgloss.NewStyle().Foreground(purple)
 	)
 	memoDir := getKeyValue("MemoDir").(string)
+	editor := getKeyValue("Editor").(string)
+	listfg := getKeyValue("ListFGColour").(string)
+	listbg := getKeyValue("ListBGColour").(string)
+	editconf := strconv.FormatBool(getKeyValue("EditConfig").(bool))
+	configLoc := getKeyValue("config_location").(string)
+
+	if listfg == "" {
+		listfg = "NO Colour!"
+	}
+	if listbg == "" {
+		listbg = "NO Colour!"
+	}
 	
 	rows := [][]string {
 		{"Memo Directory", memoDir},
+		{"Config File Location", configLoc},
+		{"Editor", editor},
+		{"Foreground Colour", listfg},
+		{"Background Colour", listbg},
+		{"Config default to Edit", editconf},
 	}
 
 	di := table.New().
