@@ -22,6 +22,8 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/huh/spinner"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -29,8 +31,6 @@ import (
 	"reflect"
 	"strconv"
 	"time"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
 )
 
 // configCmd represents the config command
@@ -54,7 +54,7 @@ var configCmd = &cobra.Command{
 				viewConfig()
 			}
 		}
-			
+
 	},
 }
 
@@ -198,15 +198,15 @@ func saveConfigToFile(filename string, conf Config) error {
 }
 
 func viewConfig() {
-	cellSize := CalcTermSize() / 2 - 5
+	cellSize := CalcTermSize()/2 - 5
 
 	const (
-	purple    = lipgloss.Color("99")
-	gray      = lipgloss.Color("245")
-	lightGray = lipgloss.Color("241")
+		purple    = lipgloss.Color("99")
+		gray      = lipgloss.Color("245")
+		lightGray = lipgloss.Color("241")
 	)
 	re := lipgloss.NewRenderer(os.Stdout)
-		var (
+	var (
 		// HeaderStyle is the lipgloss style used for the table headers.
 		HeaderStyle = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
 		// CellStyle is the base lipgloss style used for the table rows.
@@ -231,8 +231,8 @@ func viewConfig() {
 	if listbg == "" {
 		listbg = "NO Colour!"
 	}
-	
-	rows := [][]string {
+
+	rows := [][]string{
 		{"Memo Directory", memoDir},
 		{"Config File Location", configLoc},
 		{"Editor", editor},
@@ -246,12 +246,12 @@ func viewConfig() {
 		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			switch {
-				case row == 0:
-					return HeaderStyle
-				case row%2 == 0:
-					return EvenRowStyle
-				default:
-					return OddRowStyle
+			case row == 0:
+				return HeaderStyle
+			case row%2 == 0:
+				return EvenRowStyle
+			default:
+				return OddRowStyle
 			}
 		}).
 		Headers("Key", "Value").

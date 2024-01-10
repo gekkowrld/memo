@@ -34,7 +34,6 @@ func ConvertToString(value any) (string, error) {
 	return val, nil
 }
 
-
 func TerminalSize(fd int) (int, int, error) {
 	var dimensions [4]uint16
 
@@ -47,11 +46,11 @@ func TerminalSize(fd int) (int, int, error) {
 }
 
 func CalcTermSize() int {
-		terminalWidth, _, err := TerminalSize(int(syscall.Stdin))
-		if err != nil {
-			// Default to 80 if unable to determine terminal width
-			terminalWidth = 80
-		}
+	terminalWidth, _, err := TerminalSize(int(syscall.Stdin))
+	if err != nil {
+		// Default to 80 if unable to determine terminal width
+		terminalWidth = 80
+	}
 
 	return terminalWidth
 }
