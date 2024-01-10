@@ -22,12 +22,12 @@ import (
 	"github.com/spf13/cobra"
 	"log"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"syscall"
 	"unsafe"
-	"path/filepath"
 )
 
 // listCmd represents the list command
@@ -51,7 +51,7 @@ func List() {
 		log.Fatalf("Error converting MemoDir to string: %v", err)
 	}
 
-	dirExists := DirectoryExists(memoDir) 
+	dirExists := DirectoryExists(memoDir)
 
 	if dirExists {
 
@@ -78,19 +78,19 @@ func List() {
 				}
 				content, err := os.ReadFile(filepath.Join(memoDir, file.Name()))
 				if err != nil {
-			    log.Fatal("Error reading content from %s: %v", file.Name(), err)
-			    continue
+					log.Fatal("Error reading content from %s: %v", file.Name(), err)
+					continue
 				}
 
 				lines := strings.Split(string(content), "\n")
 
 				var firstNonSpaceLine string
 				for _, line := range lines {
-				    trimmedLine := strings.TrimSpace(line)
-				    if trimmedLine != "" {
-	        		firstNonSpaceLine = trimmedLine
-			        break
-			    	}
+					trimmedLine := strings.TrimSpace(line)
+					if trimmedLine != "" {
+						firstNonSpaceLine = trimmedLine
+						break
+					}
 				}
 				if firstNonSpaceLine == "" {
 					firstNonSpaceLine = "No title for this file"

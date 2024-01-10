@@ -17,31 +17,31 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/BurntSushi/toml"
-	"os"
-	"log"
-	"reflect"
-	"path/filepath"
 	"errors"
+	"fmt"
+	"github.com/BurntSushi/toml"
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/huh/spinner"
+	"github.com/spf13/cobra"
+	"log"
+	"os"
+	"path/filepath"
+	"reflect"
 	"strconv"
 	"time"
-	"github.com/charmbracelet/huh/spinner"
 )
 
 // configCmd represents the config command
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configure your environment",
-	Long: `Configure how memo works and what to use `,
+	Long:  `Configure how memo works and what to use `,
 	Run: func(cmd *cobra.Command, args []string) {
 		editFlag := cmd.Flag("edit").Changed
-		
+
 		if editFlag {
 			editConfig()
-		}else{
+		} else {
 			editConfig()
 		}
 	},
@@ -53,11 +53,11 @@ func init() {
 }
 
 type Config struct {
-	MemoDir          string `toml:"memodir"`
-	Editor           string `toml:"editor"`
-	ListFGColour     string `toml:"listfgcolour"`
-	ListBGColour     string `toml:"listbgcolour"`
-	DisplayWidth     int    `toml:"displaywidth"`
+	MemoDir      string `toml:"memodir"`
+	Editor       string `toml:"editor"`
+	ListFGColour string `toml:"listfgcolour"`
+	ListBGColour string `toml:"listbgcolour"`
+	DisplayWidth int    `toml:"displaywidth"`
 	// A specialkey "config_dir" is where this config file lives
 	// it will be useless (redundant even) to add it in the file
 }
@@ -76,13 +76,13 @@ func getKeyValue(key string) any {
 
 	// For keys that are not found in the config file but required
 	// 	in other locations
-	switch key{
-		case "configFile", "config_location", "configLocation":
-			return config_location
-		case "programLocation":
-			return "$GOPATH/bin/memo"
-		case "programName":
-			return "memo"
+	switch key {
+	case "configFile", "config_location", "configLocation":
+		return config_location
+	case "programLocation":
+		return "$GOPATH/bin/memo"
+	case "programName":
+		return "memo"
 	}
 
 	// For all the keys that can be found in the config files
@@ -103,14 +103,14 @@ func getKeyValue(key string) any {
 	return nil
 }
 
-func editConfig(){
+func editConfig() {
 	var conf Config
 	var saveFile bool
 	accessible, _ := strconv.ParseBool(os.Getenv("ACCESSIBLE"))
 	config_location, _ := ConvertToString(getKeyValue("configFile"))
-if _, err := toml.DecodeFile(config_location, &conf); err != nil {
-    log.Fatal(err)
-}
+	if _, err := toml.DecodeFile(config_location, &conf); err != nil {
+		log.Fatal(err)
+	}
 	form := huh.NewForm(
 		huh.NewGroup(huh.NewNote().
 			Title("memo").
@@ -123,13 +123,13 @@ if _, err := toml.DecodeFile(config_location, &conf); err != nil {
 			huh.NewInput().
 				Title("Editor").
 				Value(&conf.Editor),
-			),
+		),
 		huh.NewGroup(huh.NewConfirm().
 			Title("Would you like to save your configs?").
 			Value(&saveFile).
 			Affirmative("Yes!").
 			Negative("Nah!")),
-			)
+	)
 
 	err := form.Run()
 	if err != nil {
@@ -175,7 +175,7 @@ func saveConfigToFile(filename string, conf Config) error {
 }
 
 func getDefaultMemoDir() string {
-	
+
 	// Get the user's home directory
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -197,7 +197,7 @@ func getDefaultMemoDir() string {
 }
 
 func getDefaultConfigFile() string {
-	
+
 	// Get the user's home directory
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
