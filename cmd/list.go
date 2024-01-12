@@ -51,6 +51,8 @@ func List() {
 
 	dirExists := DirectoryExists(memoDir)
 
+  nothingMessage := "You currently have no memo.\nRun `memo new` to get started or `memo help` to get help"
+	var memoList string
 	if dirExists {
 
 		files, err := os.ReadDir(memoDir)
@@ -64,7 +66,6 @@ func List() {
 			numJ, _ := strconv.Atoi(strings.SplitN(files[j].Name(), "-", 2)[0])
 			return numI < numJ
 		})
-		var memoList string
 		for _, file := range files {
 			if !file.IsDir() {
 				// Get the memo number
@@ -76,7 +77,7 @@ func List() {
 				}
 				content, err := os.ReadFile(filepath.Join(memoDir, file.Name()))
 				if err != nil {
-					log.Fatal("Error reading content from %s: %v", file.Name(), err)
+					log.Fatal("Error reading content from", file.Name())
 					continue
 				}
 
@@ -100,6 +101,14 @@ func List() {
 			}
 		}
 
+    if memoList == "" {
+      memoList = nothingMessage
+    }
+	} else {
+    memoList = nothingMessage
+  }
+
+
 		terminalWidth := CalcTermSize()
 		var style = lipgloss.NewStyle().
 			Bold(true).
@@ -112,5 +121,4 @@ func List() {
 
 		fmt.Println(style.Render(memoList))
 
-	}
 }

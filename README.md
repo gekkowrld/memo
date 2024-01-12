@@ -8,8 +8,12 @@ It is inspired by:
 ## Installation
 
 ```bash
-go install github.com/gekkowrld/memo@latest
+go install github.com/gekkowrld/memo@v0.0.1
 ```
+
+:warning: I can't gurantee that you'll get the lates release by using "@latest".
+This may be due to how go looks for releases when asked for "@latest" instead of tags (idk how go does it)
+Look for the latest tag and use it instead
 
 ## Usage
 
