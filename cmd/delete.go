@@ -30,23 +30,23 @@ import (
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete a memo",
-	Long: `Delete a memo from the collection of your memos`,
+	Long:  `Delete a memo from the collection of your memos`,
 	Run: func(cmd *cobra.Command, args []string) {
-    argsPassed := len(args)
-    if argsPassed > 0 {
+		argsPassed := len(args)
+		if argsPassed > 0 {
 
-    fistArgPassed, err := strconv.Atoi(args[0])
-    if err != nil {
-      log.Fatalf("You passed a non int")
-    }
-    filename := matchMemoNumber(fistArgPassed)
-    err = removeFile(filename, fistArgPassed)
-    if err != nil {
-      log.Fatal(err)
-    }
-    } else {
-      cmd.Help()
-    }
+			fistArgPassed, err := strconv.Atoi(args[0])
+			if err != nil {
+				log.Fatalf("You passed a non int")
+			}
+			filename := matchMemoNumber(fistArgPassed)
+			err = removeFile(filename, fistArgPassed)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			cmd.Help()
+		}
 	},
 }
 
@@ -54,37 +54,37 @@ func init() {
 	rootCmd.AddCommand(deleteCmd)
 }
 
-func removeFile(filename string, memoNumber int) error  {
-  // Confirm that the value given exists in the first place
-  ex := FileExists(filename)
+func removeFile(filename string, memoNumber int) error {
+	// Confirm that the value given exists in the first place
+	ex := FileExists(filename)
 
-  var e error
-  if ex {  
-    e = os.Remove(filename)
-    fmt.Printf("Deleted %s", filename)
-  } else {
-    fmt.Printf("[%d]: Can't delete memo, couldn't match any file\n", memoNumber)
-    os.Exit(1)
-  }
+	var e error
+	if ex {
+		e = os.Remove(filename)
+		fmt.Printf("Deleted %s", filename)
+	} else {
+		fmt.Printf("[%d]: Can't delete memo, couldn't match any file\n", memoNumber)
+		os.Exit(1)
+	}
 
-  return e
+	return e
 }
 
 func matchMemoNumber(memoNumber int) string {
 	memoDir := getKeyValue("MemoDir").(string)
 
-  isDirectoryThere := DirectoryExists(memoDir)
-  
-  if !isDirectoryThere {
-    log.Fatalf("You can't delete any memo, you have none :)")
-  }
+	isDirectoryThere := DirectoryExists(memoDir)
+
+	if !isDirectoryThere {
+		log.Fatalf("You can't delete any memo, you have none :)")
+	}
 
 	files, err := os.ReadDir(memoDir)
 	if err != nil {
 		log.Fatalf("Couldn't read the contents of %s", memoDir)
 	}
 
-  var matchedFile string
+	var matchedFile string
 
 	for _, file := range files {
 		matches := regexp.MustCompile(`^(\d+)-\d{4}-\d{2}-\d{2}-(.+)\.md$`).FindStringSubmatch(file.Name())
@@ -97,7 +97,7 @@ func matchMemoNumber(memoNumber int) string {
 
 			// Check if the memo number matches the provided memoNumber
 			if currentMemoNumber == memoNumber {
-		    // Append to MemoDir
+				// Append to MemoDir
 				matchedFile = filepath.Join(memoDir, file.Name())
 			}
 		}
@@ -105,4 +105,3 @@ func matchMemoNumber(memoNumber int) string {
 
 	return matchedFile
 }
-
