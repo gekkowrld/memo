@@ -51,7 +51,7 @@ func List() {
 
 	dirExists := DirectoryExists(memoDir)
 
-  nothingMessage := "You currently have no memo.\nRun `memo new` to get started or `memo help` to get help"
+	nothingMessage := "You currently have no memo.\nRun `memo new` to get started or `memo help` to get help"
 	var memoList string
 	if dirExists {
 
@@ -101,24 +101,23 @@ func List() {
 			}
 		}
 
-    if memoList == "" {
-      memoList = nothingMessage
-    }
+		if memoList == "" {
+			memoList = nothingMessage
+		}
 	} else {
-    memoList = nothingMessage
-  }
+		memoList = nothingMessage
+	}
 
+	terminalWidth := CalcTermSize()
+	var style = lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA")).
+		Background(lipgloss.Color("#7D56F4")).
+		PaddingTop(2).
+		PaddingBottom(2).
+		PaddingLeft(4).
+		Width(terminalWidth)
 
-		terminalWidth := CalcTermSize()
-		var style = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#FAFAFA")).
-			Background(lipgloss.Color("#7D56F4")).
-			PaddingTop(2).
-			PaddingBottom(2).
-			PaddingLeft(4).
-			Width(terminalWidth)
-
-		fmt.Println(style.Render(memoList))
+	fmt.Println(style.Render(memoList))
 
 }
