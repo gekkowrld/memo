@@ -46,6 +46,12 @@ func createFileName(title string) string {
 	if err != nil {
 		log.Fatalf("Error converting MemoDir to string: %v", err)
 	}
+
+	isMemoDirPresent := DirectoryExists(memoDir)
+
+	if !isMemoDirPresent {
+		os.MkdirAll(memoDir, 0700)
+	}
 	// Read existing files in the memo directory
 	files, err := os.ReadDir(memoDir)
 	if err != nil {
