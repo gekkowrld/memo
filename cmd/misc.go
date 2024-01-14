@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strconv"
 	"syscall"
 	"unsafe"
-  "log"
-  "regexp"
-  "path/filepath"
 )
 
 // FileExists checks if a file exists.
@@ -93,4 +93,3 @@ func matchMemoNumber(memoNumber int) string {
 
 	return matchedFile
 }
-
