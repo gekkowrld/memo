@@ -57,7 +57,7 @@ else
 	curl -sL $TAR_TARGET | tar xz
 	SAVED_AS=$(echo "memo-$MEMO_LATEST_VERSION" | tr -d 'v')
 
-	SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+	SCRIPT_DIR="$(pwd)"
 	# Run the script in the file
 	if [ -e "$SCRIPT_DIR/$SAVED_AS/install.sh" ]; then
 		sh "$SCRIPT_DIR/$SAVED_AS/install.sh"
