@@ -44,7 +44,7 @@ else
 
   # Code gotten from:
   # https://stackoverflow.com/a/54608917
-  MEMO_LATEST_VERSION=$(curl -s "$UPSTREAM_REPO/tags" | grep -Eo "$Version v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}" | sort -r | head -n1 | tr -d ' ')
+  MEMO_LATEST_VERSION=$(curl -s "$UPSTREAM_REPO/tags" | grep -Eo "$Version v[0-9]{1,2}.[0-9]{1,2}.?[[:alnum:]]+" | sort -r | head -n1 | tr -d ' ')
 
   if [ "$(isZeroString "$MEMO_LATEST_VERSION")" ]; then
     echo "Error: Couldn't determine the latest version of Memo."
