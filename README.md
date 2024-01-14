@@ -8,7 +8,7 @@ It is inspired by:
 ## Installation
 
 ```bash
-go install github.com/gekkowrld/memo@v0.0.1
+go install github.com/gekkowrld/memo@v0.0.2
 ```
 
 :warning: I can't gurantee that you'll get the latest release by using "@latest".
@@ -25,9 +25,11 @@ Usage:
 
 Available Commands:
   config      Configure your environment
+  delete      Delete a memo
   help        Help about any command
   list        List the memos already created
   new         Add a new memo
+  view        View Your Memo
 
 Flags:
   -h, --help   help for memo
