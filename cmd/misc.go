@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strconv"
 	"syscall"
 	"unsafe"
@@ -53,4 +56,40 @@ func CalcTermSize() int {
 	}
 
 	return terminalWidth
+}
+
+func matchMemoNumber(memoNumber int) string {
+	memoDir := getKeyValue("MemoDir").(string)
+
+	isDirectoryThere := DirectoryExists(memoDir)
+
+	if !isDirectoryThere {
+		log.Fatalf("You can't delete any memo, you have none :)")
+	}
+
+	files, err := os.ReadDir(memoDir)
+	if err != nil {
+		log.Fatalf("Couldn't read the contents of %s", memoDir)
+	}
+
+	var matchedFile string
+
+	for _, file := range files {
+		matches := regexp.MustCompile(`^(\d+)-\d{4}-\d{2}-\d{2}-(.+)\.md$`).FindStringSubmatch(file.Name())
+
+		if len(matches) >= 3 {
+			currentMemoNumber, err := strconv.Atoi(matches[1])
+			if err != nil {
+				continue
+			}
+
+			// Check if the memo number matches the provided memoNumber
+			if currentMemoNumber == memoNumber {
+				// Append to MemoDir
+				matchedFile = filepath.Join(memoDir, file.Name())
+			}
+		}
+	}
+
+	return matchedFile
 }
