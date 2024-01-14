@@ -2,18 +2,22 @@
 
 This project aims to create a simple memo app.
 
-It is inspired by:
+Inspired by:
 [mattn memo](https://github.com/mattn/memo)
+
+This tool is built by the help of this tools:
+
+> [Charm tools](https://github.com/charmbracelet)
+> [Cobra Cli](https://github.com/spf13/cobra-cli)
 
 ## Installation
 
-```bash
-go install github.com/gekkowrld/memo@v0.0.3
-```
+Use the install script
 
-:warning: I can't gurantee that you'll get the latest release by using "@latest".
-This may be due to how go looks for releases when asked for "@latest" instead of tags (idk how go does it)
-Look for the latest tag and use it instead
+```sh
+/bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/gekkowrld/memo/HEAD/install.sh)"
+```
+Or clone then use the install script, both work well!
 
 ## Usage
 
