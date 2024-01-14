@@ -102,7 +102,7 @@ if [ ! $(isDirThere "$USER_CONFIG") ]; then
 	mkdir -p "$USER_CONFIG"
 fi
 
-# Now check if the shell completion is set in the ~/.bashrc file
+# Now check if the shell completion is set in the ~/.bashrc file for bash
 if $BASH_USER; then
 	USER_CONFIG=$USER_CONFIG"/memo"
 	# Assuming that the file structure is as is in the upstream
@@ -118,3 +118,7 @@ if $BASH_USER; then
 		echo "source \"$USER_CONFIG\"" >>"$HOME/.bashrc"
 	fi
 fi
+
+# Now compile the source code
+# Use the hacky, should be changed later maybe
+go install .
