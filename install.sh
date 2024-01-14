@@ -2,11 +2,10 @@
 
 UPSTREAM_REPO="https://github.com/gekkowrld/memo"
 
-
 # Determine the user shell
 # Determine where I am before running
 # First check the expected files if they exist
-if eval "stat main.go" >/dev/null 2>&1 ; then
+if eval "stat main.go" >/dev/null 2>&1; then
   # This means I'm in a directory, so I should continue running
   echo "Anything may happen, please check the script and make sure everything is OK"
 
@@ -98,7 +97,7 @@ if "$BASH_USER"; then
   USER_CONFIG=$USER_CONFIG"/memo"
   # Assuming that the file structure is as is in the upstream
 
-  if test -f "completion/memo.bash" ; then
+  if test -f "completion/memo.bash"; then
     # Update the file if it exists
     # I don't expect it to be user maintained, so overriding it is ok
     cp -uv ./completion/memo.bash "$USER_CONFIG"
