@@ -38,7 +38,7 @@ else
 	done
 
 	# If any was found, then exit the program early on
-	if $ANY_MISSING; then
+	if "$ANY_MISSING"; then
 		exit 1
 	fi
 
@@ -46,7 +46,7 @@ else
 	# https://stackoverflow.com/a/54608917
 	MEMO_LATEST_VERSION=$(curl -s "$UPSTREAM_REPO/tags" | grep -Eo "$Version v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}" | sort -r | head -n1 | tr -d ' ')
 
-	if [ $(isZeroString "$MEMO_LATEST_VERSION") ]; then
+	if [ "$(isZeroString "$MEMO_LATEST_VERSION")" ]; then
 		echo "Error: Couldn't determine the latest version of Memo."
 		exit 1
 	fi
@@ -57,7 +57,7 @@ else
 	curl -sL "$TAR_TARGET" | tar xz
 	SAVED_AS=$(echo "memo-$MEMO_LATEST_VERSION" | tr -d 'v')
 
-	SCRIPT_DIR="$(pwd)"
+	SCRIPT_DIR="$PWD"
 	# Run the script in the file
 	if [ -e "$SCRIPT_DIR/$SAVED_AS/install.sh" ]; then
 		sh "$SCRIPT_DIR/$SAVED_AS/install.sh"
@@ -98,16 +98,16 @@ fi
 # Check if the config directory even exists
 # Create it if it doesn't
 
-if [ ! $(isDirThere "$USER_CONFIG") ]; then
+if [ ! "$(isDirThere "$USER_CONFIG")" ]; then
 	mkdir -p "$USER_CONFIG"
 fi
 
 # Now check if the shell completion is set in the ~/.bashrc file for bash
-if $BASH_USER; then
+if "$BASH_USER"; then
 	USER_CONFIG=$USER_CONFIG"/memo"
 	# Assuming that the file structure is as is in the upstream
 
-	if [ $(ls -R "$PWD" | grep "memo.bash") ]; then
+	if [ "$(ls -R "$PWD" | grep "memo.bash")" ]; then
 		# Update the file if it exists
 		# I don't expect it to be user maintained, so overriding it is ok
 		cp -uv ./completion/memo.bash "$USER_CONFIG"
