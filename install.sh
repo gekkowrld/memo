@@ -54,7 +54,7 @@ else
 	# Get the tar.gz file and untar it
 	TAR_TARGET="$UPSTREAM_REPO/archive/refs/tags/$MEMO_LATEST_VERSION.tar.gz"
 	echo "curl -sL $TAR_TARGET"
-	curl -sL $TAR_TARGET | tar xz
+	curl -sL "$TAR_TARGET" | tar xz
 	SAVED_AS=$(echo "memo-$MEMO_LATEST_VERSION" | tr -d 'v')
 
 	SCRIPT_DIR="$(pwd)"
@@ -89,9 +89,9 @@ esac
 
 # Check if the user set a diffrent config location
 USER_CONFIG="$HOME/.config/memo"
-ENV_USER_CONFIG=$(echo $GMEMOCONFLC)
+ENV_USER_CONFIG=$(echo "$GMEMOCONFLC")
 
-if [ $ENV_USER_CONFIG ]; then
+if [ "$ENV_USER_CONFIG" ]; then
 	USER_CONFIG=$ENV_USER_CONFIG
 fi
 
@@ -107,10 +107,10 @@ if $BASH_USER; then
 	USER_CONFIG=$USER_CONFIG"/memo"
 	# Assuming that the file structure is as is in the upstream
 
-	if [ $(ls -R $PWD | grep "memo.bash") ]; then
+	if [ $(ls -R "$PWD" | grep "memo.bash") ]; then
 		# Update the file if it exists
 		# I don't expect it to be user maintained, so overriding it is ok
-		cp -uv ./completion/memo.bash $USER_CONFIG
+		cp -uv ./completion/memo.bash "$USER_CONFIG"
 	fi
 
 	if ! grep -q "source \"$USER_CONFIG\"" "$HOME/.bashrc"; then
