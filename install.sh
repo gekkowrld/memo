@@ -60,7 +60,8 @@ else
 	SCRIPT_DIR="$(pwd)"
 	# Run the script in the file
 	if [ -e "$SCRIPT_DIR/$SAVED_AS/install.sh" ]; then
-		sh "$SCRIPT_DIR/$SAVED_AS/install.sh"
+    cd "$SCRIPT_DIR/$SAVED_AS"
+		sh "install.sh"
 	else
 		echo "Error: Couldn't find the install script ($SCRIPT_DIR/$SAVED_AS/install.sh)"
 		exit 1
@@ -121,4 +122,5 @@ fi
 
 # Now compile the source code
 # Use the hacky, should be changed later maybe
+echo "Installing the executable"
 go install .
