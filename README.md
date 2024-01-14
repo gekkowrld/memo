@@ -8,7 +8,7 @@ It is inspired by:
 ## Installation
 
 ```bash
-go install github.com/gekkowrld/memo@v0.0.2
+go install github.com/gekkowrld/memo@v0.0.3
 ```
 
 :warning: I can't gurantee that you'll get the latest release by using "@latest".
