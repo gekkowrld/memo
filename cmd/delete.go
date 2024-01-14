@@ -67,4 +67,3 @@ func removeFile(filename string, memoNumber int) error {
 
 	return e
 }
-
