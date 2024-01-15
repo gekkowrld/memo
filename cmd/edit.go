@@ -26,19 +26,18 @@ import (
 var editCmd = &cobra.Command{
 	Use:   "edit",
 	Short: "Edit your memo",
-	Long: `Edit your memo easily`,
+	Long:  `Edit your memo easily`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
-      editMemo, _ := strconv.Atoi(args[0])
-      filename := matchMemoNumber(editMemo)
-      openEditor(filename)
-    }else {
-      cmd.Help()
-    }
+			editMemo, _ := strconv.Atoi(args[0])
+			filename := matchMemoNumber(editMemo)
+			openEditor(filename)
+		} else {
+			cmd.Help()
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(editCmd)
 }
-

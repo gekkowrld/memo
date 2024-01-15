@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"syscall"
 	"unsafe"
-	"os/exec"
 )
 
 // FileExists checks if a file exists.
@@ -95,19 +95,18 @@ func matchMemoNumber(memoNumber int) string {
 	return matchedFile
 }
 
-
 func openEditor(fileName string, oTitle ...string) error {
 	editor, err := strconv.Unquote(strconv.Quote(getKeyValue("Editor").(string)))
 	if err != nil {
 		log.Fatalf("Error converting Editor to string: %v", err)
 	}
 
-  var title string
-  if len(oTitle) == 0 {
-    title = ""
-  }else {
-    title = oTitle[0]
-  }
+	var title string
+	if len(oTitle) == 0 {
+		title = ""
+	} else {
+		title = oTitle[0]
+	}
 	// If title is provided, write it to the file
 	if title != "" {
 		title = "# " + title + "\n\n"
@@ -128,5 +127,5 @@ func openEditor(fileName string, oTitle ...string) error {
 		log.Fatalf("%s exited with error, couldn't open %s: %v", editor, fileName, err)
 	}
 
-  return err
+	return err
 }

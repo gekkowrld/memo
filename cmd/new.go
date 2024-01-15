@@ -89,4 +89,3 @@ func createFileName(title string) string {
 
 	return filepath.Join("/", memoDir, newFileName)
 }
-
