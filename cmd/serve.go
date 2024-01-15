@@ -70,7 +70,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		displayCustom404(w, r)
 		return
 	}
-	homeFiles := filepath.Join(getKeyValue("MemoDir").(string), "assets")
+	homeFiles := filepath.Join(getKeyValue("configDir").(string), "assets")
 	baseFile := filepath.Join(homeFiles, "base.html")
 	cssContent, _ := os.ReadFile(filepath.Join(homeFiles, "base.css"))
 	ts, err := template.New("base.html").ParseFiles(baseFile)
@@ -117,7 +117,7 @@ func viewFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userHTML := mdToHTML(content)
-	homeFiles := filepath.Join(getKeyValue("MemoDir").(string), "assets")
+	homeFiles := filepath.Join(getKeyValue("configDir").(string), "assets")
 
 	baseFile := filepath.Join(homeFiles, "base.html")
 	ts, err := template.New("base.html").ParseFiles(baseFile)
@@ -148,7 +148,7 @@ func displayCustom404(w http.ResponseWriter, r *http.Request) {
 		</div>
 	</div>
   `
-	homeFiles := filepath.Join(getKeyValue("MemoDir").(string), "assets")
+	homeFiles := filepath.Join(getKeyValue("configDir").(string), "assets")
 
 	baseFile := filepath.Join(homeFiles, "base.html")
 	ts, err := template.New("base.html").ParseFiles(baseFile)
