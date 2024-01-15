@@ -18,6 +18,7 @@ Use the install script
 ```sh
 /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/gekkowrld/memo/HEAD/install.sh)"
 ```
+
 Or clone then use the install script, both work well!
 
 ## Usage
@@ -31,6 +32,7 @@ Usage:
 Available Commands:
   config      Configure your environment
   delete      Delete a memo
+  edit        Edit your memo
   help        Help about any command
   list        List the memos already created
   new         Add a new memo

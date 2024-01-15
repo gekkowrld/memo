@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -92,4 +93,39 @@ func matchMemoNumber(memoNumber int) string {
 	}
 
 	return matchedFile
+}
+
+func openEditor(fileName string, oTitle ...string) error {
+	editor, err := strconv.Unquote(strconv.Quote(getKeyValue("Editor").(string)))
+	if err != nil {
+		log.Fatalf("Error converting Editor to string: %v", err)
+	}
+
+	var title string
+	if len(oTitle) == 0 {
+		title = ""
+	} else {
+		title = oTitle[0]
+	}
+	// If title is provided, write it to the file
+	if title != "" {
+		title = "# " + title + "\n\n"
+		err := os.WriteFile(fileName, []byte(title), 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Run the editor with the specified file
+	cmd := exec.Command(editor, fileName)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+
+	// Display any errors that occur during execution
+	err = cmd.Run()
+	if err != nil {
+		log.Fatalf("%s exited with error, couldn't open %s: %v", editor, fileName, err)
+	}
+
+	return err
 }
