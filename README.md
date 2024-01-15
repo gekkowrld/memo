@@ -18,6 +18,7 @@ Use the install script
 ```sh
 /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/gekkowrld/memo/HEAD/install.sh)"
 ```
+
 Or clone then use the install script, both work well!
 
 ## Usage
