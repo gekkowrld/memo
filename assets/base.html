@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ .Title }} - Memo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      {{ .StyleSheet }}
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Memo</a></h1>
+    </header>
+    <main>
+      {{ .Main }}
+    </main>
+  
+    <footer>
+      Powered by <a href="https://golang.org/">GO!</a>
+    </footer>
+  </body>
+</html>
+
