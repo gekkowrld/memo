@@ -92,8 +92,8 @@ func getKeyValue(key string) any {
 	switch key {
 	case "configFile", "config_location", "configLocation":
 		return config_location
-  case "configDir":
-    return filepath.Dir(config_location)
+	case "configDir":
+		return filepath.Dir(config_location)
 	case "programLocation":
 		return "$GOPATH/bin/memo"
 	case "programName":
