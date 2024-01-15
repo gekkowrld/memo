@@ -116,4 +116,10 @@ go install .
 echo "Installed executable"
 sleep 1
 echo "Copying assets to the correct folder"
-cp -uvr "$PWD/assets/" "$USER_CONFIG/assets"
+USER_CONFIG_ASSETS="$USER_CONFIG/assets"
+
+if ! eval "stat \"$USER_CONFIG_ASSETS\"" >/dev/null 2>&1; then
+  mkdir -p "$USER_CONFIG_ASSETS"
+fi
+
+cp -uvr "$PWD/assets/*" "$USER_CONFIG/assets/"
