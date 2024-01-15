@@ -31,6 +31,7 @@ Usage:
 Available Commands:
   config      Configure your environment
   delete      Delete a memo
+  edit        Edit your memo
   help        Help about any command
   list        List the memos already created
   new         Add a new memo

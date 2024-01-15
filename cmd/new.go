@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -91,30 +90,3 @@ func createFileName(title string) string {
 	return filepath.Join("/", memoDir, newFileName)
 }
 
-func openEditor(fileName string, title string) {
-
-	editor, err := strconv.Unquote(strconv.Quote(getKeyValue("Editor").(string)))
-	if err != nil {
-		log.Fatalf("Error converting Editor to string: %v", err)
-	}
-
-	// Format the title string
-	title = "# " + title + "\n\n"
-
-	// Write some content to the file before opening
-	err = os.WriteFile(fileName, []byte(title), 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Run the editor with the specified file
-	cmd := exec.Command(editor, fileName)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-
-	// Display any errors that occur during execution
-	err = cmd.Run()
-	if err != nil {
-		log.Fatalf("%s exited with error, couldn't open %s: %v", editor, fileName, err)
-	}
-}
