@@ -84,8 +84,9 @@ func createFileName(title string) string {
 	// Format the current date
 	formattedDate := time.Now().Format("2006-01-02")
 
+	sanitizedTitle := regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(title, "_")
 	// Format the new file name
-	newFileName := fmt.Sprintf("%d-%s-%s.md", nextNumber, formattedDate, strings.ReplaceAll(strings.ToLower(title), " ", "_"))
+	newFileName := fmt.Sprintf("%d-%s-%s.md", nextNumber, formattedDate, strings.ToLower(sanitizedTitle))
 
 	return filepath.Join("/", memoDir, newFileName)
 }

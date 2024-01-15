@@ -36,6 +36,7 @@ Available Commands:
   help        Help about any command
   list        List the memos already created
   new         Add a new memo
+  serve       View Your Memo in the browser
   view        View Your Memo
 
 Flags:

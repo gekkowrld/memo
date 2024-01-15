@@ -113,3 +113,7 @@ fi
 # Use the hacky, should be changed later maybe
 echo "Installing the executable"
 go install .
+echo "Installed executable"
+sleep 1
+echo "Copying assets to the correct folder"
+cp -uvr "$PWD/assets/" "$USER_CONFIG/assets"

@@ -18,14 +18,15 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/cobra"
 )
 
 // listCmd represents the list command
@@ -75,27 +76,7 @@ func List() {
 					log.Printf("Error getting memo number from file %s with error code %v", file.Name(), err)
 					continue
 				}
-				content, err := os.ReadFile(filepath.Join(memoDir, file.Name()))
-				if err != nil {
-					log.Fatal("Error reading content from", file.Name())
-					continue
-				}
-
-				lines := strings.Split(string(content), "\n")
-
-				var firstNonSpaceLine string
-				for _, line := range lines {
-					trimmedLine := strings.TrimSpace(line)
-					if trimmedLine != "" {
-						firstNonSpaceLine = trimmedLine
-						break
-					}
-				}
-				if firstNonSpaceLine == "" {
-					firstNonSpaceLine = "No title for this file"
-				}
-
-				firstNonSpaceLine = strings.TrimPrefix(firstNonSpaceLine, "#")
+				firstNonSpaceLine := getFileTitle(filepath.Join(memoDir, file.Name()))
 				memoInfo := fmt.Sprintf("Memo %d: %s", number, strings.TrimSpace(firstNonSpaceLine))
 				memoList += "\n" + memoInfo
 			}
