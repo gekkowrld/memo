@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"syscall"
 	"unsafe"
-  "strings"
 )
 
 // FileExists checks if a file exists.
@@ -131,26 +131,26 @@ func openEditor(fileName string, oTitle ...string) error {
 	return err
 }
 
-func getFileTitle(filename string) string  {
-				content, err := os.ReadFile(filename)
-				if err != nil {
-					log.Fatal("Error reading content from", filename)
-				}
+func getFileTitle(filename string) string {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		log.Fatal("Error reading content from", filename)
+	}
 
-				lines := strings.Split(string(content), "\n")
+	lines := strings.Split(string(content), "\n")
 
-				var firstNonSpaceLine string
-				for _, line := range lines {
-					trimmedLine := strings.TrimSpace(line)
-					if trimmedLine != "" {
-						firstNonSpaceLine = trimmedLine
-						break
-					}
-				}
-				if firstNonSpaceLine == "" {
-					firstNonSpaceLine = "No title for this file"
-				}
+	var firstNonSpaceLine string
+	for _, line := range lines {
+		trimmedLine := strings.TrimSpace(line)
+		if trimmedLine != "" {
+			firstNonSpaceLine = trimmedLine
+			break
+		}
+	}
+	if firstNonSpaceLine == "" {
+		firstNonSpaceLine = "No title for this file"
+	}
 
-				firstNonSpaceLine = strings.TrimPrefix(firstNonSpaceLine, "#")
-      return firstNonSpaceLine
+	firstNonSpaceLine = strings.TrimPrefix(firstNonSpaceLine, "#")
+	return firstNonSpaceLine
 }

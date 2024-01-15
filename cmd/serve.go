@@ -74,20 +74,20 @@ func home(w http.ResponseWriter, r *http.Request) {
 	baseFile := filepath.Join(homeFiles, "base.html")
 	cssContent, _ := os.ReadFile(filepath.Join(homeFiles, "base.css"))
 	ts, err := template.New("base.html").ParseFiles(baseFile)
-  
-  // Now Get the files
-  memoDir := getKeyValue("MemoDir").(string)
-  files, _ := os.ReadDir(memoDir)
 
-  var forwardContent string
-    for _, file := range files {
-        if !file.IsDir() {
-            fileTitle := getFileTitle(filepath.Join(memoDir, file.Name()))
-            re := regexp.MustCompile(`^(\d+)-`)
-            fileNumber := re.FindSubmatch([]byte(file.Name()))
-            forwardContent += fmt.Sprintf("<a class=\"main-link\" href=\"/view?id=%s\">%s - %s</a><br/>", fileNumber[1], fileNumber[1], fileTitle)
-        }
-    }
+	// Now Get the files
+	memoDir := getKeyValue("MemoDir").(string)
+	files, _ := os.ReadDir(memoDir)
+
+	var forwardContent string
+	for _, file := range files {
+		if !file.IsDir() {
+			fileTitle := getFileTitle(filepath.Join(memoDir, file.Name()))
+			re := regexp.MustCompile(`^(\d+)-`)
+			fileNumber := re.FindSubmatch([]byte(file.Name()))
+			forwardContent += fmt.Sprintf("<a class=\"main-link\" href=\"/view?id=%s\">%s - %s</a><br/>", fileNumber[1], fileNumber[1], fileTitle)
+		}
+	}
 
 	data := inputData{Title: "Home", Main: template.HTML(forwardContent), StyleSheet: template.CSS(cssContent)}
 	if err != nil {

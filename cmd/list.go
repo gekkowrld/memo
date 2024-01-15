@@ -76,7 +76,7 @@ func List() {
 					log.Printf("Error getting memo number from file %s with error code %v", file.Name(), err)
 					continue
 				}
-        firstNonSpaceLine := getFileTitle(filepath.Join(memoDir, file.Name()))
+				firstNonSpaceLine := getFileTitle(filepath.Join(memoDir, file.Name()))
 				memoInfo := fmt.Sprintf("Memo %d: %s", number, strings.TrimSpace(firstNonSpaceLine))
 				memoList += "\n" + memoInfo
 			}
