@@ -1,6 +1,8 @@
 #!/bin/sh
 
 UPSTREAM_REPO="https://github.com/gekkowrld/memo"
+CSS_PRISM_FILE="https://gist.github.com/gekkowrld/11622b8dd1adcb783d6fa23ed1883338/raw/7ebdac23526b21e4e30486357de9aed2aa84b815/prism.css"
+JS_PRISM_FILE="https://gist.github.com/gekkowrld/11622b8dd1adcb783d6fa23ed1883338/raw/7ebdac23526b21e4e30486357de9aed2aa84b815/prism.js"
 
 # Determine the user shell
 # Determine where I am before running
@@ -134,5 +136,7 @@ fi
 
 # Copy the assets directory to the user config
 cp -r "$ASSETS_DIR" "$USER_CONFIG"
+curl -fsSL "$CSS_PRISM_FILE" -o "$USER_CONFIG/assets/prism.css"
+curl -fsSL "$JS_PRISM_FILE" -o "$USER_CONFIG/assets/prism.js"
 
 echo "Assets copied successfully"
