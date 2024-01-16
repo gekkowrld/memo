@@ -3,6 +3,7 @@
   <head>
     <title>{{ .Title }} - Memo</title>
     <meta charset="UTF-8">
+    {{ .FaviconImage }}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
       {{ .StyleSheet }}
@@ -20,5 +21,8 @@
       <hr>
       &copy; Memo
     </footer>
+    <script>
+    {{ .ScriptSheet }}
+    </script>
   </body>
 </html>
