@@ -56,11 +56,11 @@ func init() {
 }
 
 type inputData struct {
-	Title      string
-	Main       template.HTML
-	StyleSheet template.CSS
-  ScriptSheet template.JS
-  FaviconImage template.HTML
+	Title        string
+	Main         template.HTML
+	StyleSheet   template.CSS
+	ScriptSheet  template.JS
+	FaviconImage template.HTML
 }
 
 func serveStaticFile(fileType string) string {
@@ -71,11 +71,11 @@ func serveStaticFile(fileType string) string {
 		return ""
 	}
 
-  if fileType == "favicon" {
-    faviconPath := filepath.Join(homeFiles, "assets", "favicon.ico")
-    faviconLink := fmt.Sprintf("<link rel=\"shortcut icon\" href=\"%s\" type=\"image/x-icon\">", faviconPath)
-    return faviconLink
-  }
+	if fileType == "favicon" {
+		faviconPath := filepath.Join(homeFiles, "assets", "favicon.ico")
+		faviconLink := fmt.Sprintf("<link rel=\"shortcut icon\" href=\"%s\" type=\"image/x-icon\">", faviconPath)
+		return faviconLink
+	}
 
 	var fileContent string
 	fileScanner := bufio.NewScanner(readFile)
@@ -91,12 +91,12 @@ func serveStaticFile(fileType string) string {
 			filelocation = filepath.Join(homeFiles, text)
 		}
 		fileExt := filepath.Ext(filelocation)
-    // Remove the . before actually doing anything
-    var withoutDot string
-    if fileExt != "" {
-      withoutDot = fileExt[1:]
-    }
-    if withoutDot == fileType {
+		// Remove the . before actually doing anything
+		var withoutDot string
+		if fileExt != "" {
+			withoutDot = fileExt[1:]
+		}
+		if withoutDot == fileType {
 			fileByteCont, err := os.ReadFile(filelocation)
 			if err != nil {
 				log.Print(err)
