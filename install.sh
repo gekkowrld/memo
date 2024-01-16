@@ -114,12 +114,25 @@ fi
 echo "Installing the executable"
 go install .
 echo "Installed executable"
-sleep 1
-echo "Copying assets to the correct folder"
-USER_CONFIG_ASSETS="$USER_CONFIG/assets"
 
-if ! eval "stat \"$USER_CONFIG_ASSETS\"" >/dev/null 2>&1; then
-  mkdir -p "$USER_CONFIG_ASSETS"
+echo "Copying assets to the correct folder"
+USER_CONFIG="$HOME/.config/memo"
+
+# Check if the user config directory exists or create it
+if [ ! -d "$USER_CONFIG" ]; then
+  mkdir -p "$USER_CONFIG"
 fi
 
-cp -uvr "$PWD/assets/*" "$USER_CONFIG/assets/"
+# Assuming the assets are in the same directory as the script
+ASSETS_DIR="$(cd "$(dirname "$0")" && pwd)/assets"
+
+# Check if the assets directory exists
+if [ ! -d "$ASSETS_DIR" ]; then
+  echo "Error: Assets directory not found."
+  exit 1
+fi
+
+# Copy the assets directory to the user config
+cp -r "$ASSETS_DIR" "$USER_CONFIG"
+
+echo "Assets copied successfully"

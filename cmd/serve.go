@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"html/template"
 	"log"
@@ -32,7 +33,6 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
-	"github.com/microcosm-cc/bluemonday"
 )
 
 // serveCmd represents the serve command
@@ -42,12 +42,8 @@ var serveCmd = &cobra.Command{
 	Long:  `View Your Memo in your favourite broswer!`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
-			viewMemo, _ := strconv.Atoi(args[0])
-			filename := matchMemoNumber(viewMemo)
-			content, _ := os.ReadFile(filename)
-			userHTML := mdToHTML(content)
-			finHTML := injectAdditionalHtml(userHTML, filename)
-			startServer(finHTML)
+			fmt.Print("NotYetImplemented!")
+			displayIndex()
 		} else {
 			// Display The Index File
 			displayIndex()
@@ -60,9 +56,59 @@ func init() {
 }
 
 type inputData struct {
-	Title      string
-	Main       template.HTML
-	StyleSheet template.CSS
+	Title        string
+	Main         template.HTML
+	StyleSheet   template.CSS
+	ScriptSheet  template.JS
+	FaviconImage template.HTML
+}
+
+func serveStaticFile(fileType string) string {
+	homeFiles := filepath.Join(getKeyValue("configDir").(string))
+	readFile, err := os.Open(filepath.Join(homeFiles, "staticfiles"))
+	if err != nil {
+		log.Print(err)
+		return ""
+	}
+
+	if fileType == "favicon" {
+		faviconPath := filepath.Join(homeFiles, "assets", "favicon.ico")
+		faviconLink := fmt.Sprintf("<link rel=\"shortcut icon\" href=\"%s\" type=\"image/x-icon\">", faviconPath)
+		return faviconLink
+	}
+
+	var fileContent string
+	fileScanner := bufio.NewScanner(readFile)
+	fileScanner.Split(bufio.ScanLines)
+
+	// This file is expected to be small, so it is reasonable to
+	// read and subsequently process it
+	for fileScanner.Scan() {
+		text := fileScanner.Text()
+		// Check if the path is absolute or not
+		filelocation := text
+		if !filepath.IsAbs(filelocation) {
+			filelocation = filepath.Join(homeFiles, text)
+		}
+		fileExt := filepath.Ext(filelocation)
+		// Remove the . before actually doing anything
+		var withoutDot string
+		if fileExt != "" {
+			withoutDot = fileExt[1:]
+		}
+		if withoutDot == fileType {
+			fileByteCont, err := os.ReadFile(filelocation)
+			if err != nil {
+				log.Print(err)
+				continue
+			}
+			fileContent += string(fileByteCont)
+		}
+	}
+
+	readFile.Close()
+
+	return fileContent
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +118,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 	homeFiles := filepath.Join(getKeyValue("configDir").(string), "assets")
 	baseFile := filepath.Join(homeFiles, "base.html")
-	cssContent, _ := os.ReadFile(filepath.Join(homeFiles, "base.css"))
 	ts, err := template.New("base.html").ParseFiles(baseFile)
 
 	// Now Get the files
@@ -89,7 +134,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	data := inputData{Title: "Home", Main: template.HTML(forwardContent), StyleSheet: template.CSS(cssContent)}
+	data := inputData{Title: "Home", Main: template.HTML(forwardContent), StyleSheet: template.CSS(serveStaticFile("css")), ScriptSheet: template.JS(serveStaticFile("js")), FaviconImage: template.HTML(serveStaticFile("favicon"))}
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -122,8 +167,7 @@ func viewFile(w http.ResponseWriter, r *http.Request) {
 	baseFile := filepath.Join(homeFiles, "base.html")
 	ts, err := template.New("base.html").ParseFiles(baseFile)
 
-	cssContent, _ := os.ReadFile(filepath.Join(homeFiles, "base.css"))
-	data := inputData{Title: getFileTitle(matchMemoNumber(id)), Main: template.HTML(userHTML), StyleSheet: template.CSS(cssContent)}
+	data := inputData{Title: getFileTitle(matchMemoNumber(id)), Main: template.HTML(userHTML), StyleSheet: template.CSS(serveStaticFile("css")), ScriptSheet: template.JS(serveStaticFile("js"))}
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -153,8 +197,7 @@ func displayCustom404(w http.ResponseWriter, r *http.Request) {
 	baseFile := filepath.Join(homeFiles, "base.html")
 	ts, err := template.New("base.html").ParseFiles(baseFile)
 
-	cssContent, _ := os.ReadFile(filepath.Join(homeFiles, "base.css"))
-	data := inputData{Title: "404 Page Not Found", Main: template.HTML(htmlCode), StyleSheet: template.CSS(cssContent)}
+	data := inputData{Title: "404 Page Not Found", Main: template.HTML(htmlCode), StyleSheet: template.CSS(serveStaticFile("css"))}
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -176,25 +219,12 @@ func displayIndex() {
 	log.Fatal(err)
 }
 
-// The code inside here should be replaced!
-func injectAdditionalHtml(bodyContent []byte, filename string) string {
-	assetsDir := filepath.Join(getKeyValue("configDir").(string), "assets")
-	getTopFileContent, _ := os.ReadFile(filepath.Join(assetsDir, "top.html"))
-	fileTitle := getFileTitle(filename)
-
-	// Replace the <title> tag with the fileTitle using regular expression
-	titlePattern := regexp.MustCompile(`<title>\s*(.*)\s*</title>`)
-	topHtmlWithFileTitle := titlePattern.ReplaceAllString(string(getTopFileContent), "<title>"+fileTitle+"</title>")
-
-	// Inject bodyContent to the <body> tag using regular expression
-	sanitizedHTML := bluemonday.UGCPolicy().SanitizeBytes(bodyContent)
-	bodyPattern := regexp.MustCompile(`<body>\s*(.*)\s*</body>`)
-	fullHtml := bodyPattern.ReplaceAllString(topHtmlWithFileTitle, "<body>\n"+string(sanitizedHTML)+"</body>")
-
-	return fullHtml
-}
-
 func mdToHTML(md []byte) []byte {
+
+	// No checks or sanitization provided yet!
+	// It is expected to run on users system so most of the attacks
+	// are not an imminent threat, for now
+
 	// create markdown parser with extensions
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
 	p := parser.NewWithExtensions(extensions)
@@ -206,14 +236,4 @@ func mdToHTML(md []byte) []byte {
 	renderer := html.NewRenderer(opts)
 
 	return markdown.Render(doc, renderer)
-}
-func startServer(htmlContent string) {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// Serve the generated HTML content
-		fmt.Fprintf(w, htmlContent)
-	})
-
-	// Start the server on port 8080
-	fmt.Println("Server running on http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
 }
