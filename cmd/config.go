@@ -71,7 +71,7 @@ type Config struct {
 	ListBGColour string `toml:"listbgcolour"`
 	DisplayWidth int    `toml:"displaywidth"`
 	EditConfig   bool   `toml:"editconfig"`
-  Git          bool    `toml:"git"`
+	Git          bool   `toml:"git"`
 	// A specialkey "config_dir" is where this config file lives
 	// it will be useless (redundant even) to add it in the file
 }
@@ -149,10 +149,10 @@ func editConfig() {
 				Options(huh.NewOptions(true, false)...).
 				Value(&conf.EditConfig).
 				Title("Edit by default when calling config"),
-      huh.NewSelect[bool]().
-        Options(huh.NewOptions(true, false) ...).
-        Value(&conf.Git).
-        Title("Should the memos be tracked using git"),
+			huh.NewSelect[bool]().
+				Options(huh.NewOptions(true, false)...).
+				Value(&conf.Git).
+				Title("Should the memos be tracked using git"),
 		),
 		huh.NewGroup(huh.NewConfirm().
 			Title("Would you like to save your configs?").

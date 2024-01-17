@@ -10,24 +10,23 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-
 func commit(commitMsg string, filename string) {
 	isGitEnabled := getKeyValue("Git").(bool)
-  if !isGitEnabled {
-    return
-  }
+	if !isGitEnabled {
+		return
+	}
 	// First move to the memoDirectory, then commit
 	memoDirectory := getKeyValue("MemoDir").(string)
 
 	// First check if the repo exists, init it if it doesn't exist
 	if !checkIfRepoExists() {
-    _, err := git.PlainInit(memoDirectory, false) 
-    if err != nil {
-      log.Fatalf("Can't initialize %s", memoDirectory)
-    }
+		_, err := git.PlainInit(memoDirectory, false)
+		if err != nil {
+			log.Fatalf("Can't initialize %s", memoDirectory)
+		}
 	}
 
-  // Panic if the directory isn't created yet
+	// Panic if the directory isn't created yet
 	if !DirectoryExists(memoDirectory) {
 		log.Panicf("Can't find %s, commit failed", memoDirectory)
 	}
@@ -38,29 +37,29 @@ func commit(commitMsg string, filename string) {
 	_, _ = work.Add(filename)
 
 	// Should now get the user git credentials
-  // Since the program can be run from anywhere, specify the starting location
-  username, _ := gogitconfig.GetValue("user.name", memoDirectory)
-  email, _ := gogitconfig.GetValue("user.email", memoDirectory)
+	// Since the program can be run from anywhere, specify the starting location
+	username, _ := gogitconfig.GetValue("user.name", memoDirectory)
+	email, _ := gogitconfig.GetValue("user.email", memoDirectory)
 
-  // Commit the code
-  co, err := work.Commit(commitMsg, &git.CommitOptions{
-    Author: &object.Signature{
-        Name: username,
-        Email: email,
-        When: time.Now(),
-    },
-  })
+	// Commit the code
+	co, err := work.Commit(commitMsg, &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  username,
+			Email: email,
+			When:  time.Now(),
+		},
+	})
 
-  if err != nil {
-    log.Panic("Couldn't Commit")
-  }
+	if err != nil {
+		log.Panic("Couldn't Commit")
+	}
 
-  obj, err := read.CommitObject(co)
-  if err != nil {
-    log.Panic("Couldn't get ay info")
-  }
+	obj, err := read.CommitObject(co)
+	if err != nil {
+		log.Panic("Couldn't get ay info")
+	}
 
-  fmt.Println(obj)
+	fmt.Println(obj)
 
 }
 
