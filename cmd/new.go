@@ -35,11 +35,11 @@ func title() {
 
 	// Pass the title to createFileName and OpenEditor functions
 	fileName := createFileName(title)
-  exitStatus := openEditor(fileName, title)
-  if exitStatus == nil {
-    commitMsg := fmt.Sprintf("[New]: %s", title)
-    commit(commitMsg, fileName)
-  }
+	exitStatus := openEditor(fileName, title)
+	if exitStatus == nil {
+		commitMsg := fmt.Sprintf("[New]: %s", title)
+		commit(commitMsg, fileName)
+	}
 }
 
 func createFileName(title string) string {

@@ -32,11 +32,11 @@ var editCmd = &cobra.Command{
 		if len(args) > 0 {
 			editMemo, _ := strconv.Atoi(args[0])
 			filename := matchMemoNumber(editMemo)
-      err := openEditor(filename)
-      if err == nil {
-        commitMsg := fmt.Sprintf("[Edit]: %s", getFileTitle(filename))
-        commit(commitMsg, filename)
-      }
+			err := openEditor(filename)
+			if err == nil {
+				commitMsg := fmt.Sprintf("[Edit]: %s", getFileTitle(filename))
+				commit(commitMsg, filename)
+			}
 		} else {
 			cmd.Help()
 		}
