@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -31,7 +32,11 @@ var editCmd = &cobra.Command{
 		if len(args) > 0 {
 			editMemo, _ := strconv.Atoi(args[0])
 			filename := matchMemoNumber(editMemo)
-			openEditor(filename)
+			err := openEditor(filename)
+			if err == nil {
+				commitMsg := fmt.Sprintf("[Edit]: %s", getFileTitle(filename))
+				commit(commitMsg, filename)
+			}
 		} else {
 			cmd.Help()
 		}
