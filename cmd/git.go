@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"path/filepath"
 	"time"
 
 	"github.com/gekkowrld/go-gitconfig"
@@ -32,9 +33,25 @@ func commit(commitMsg string, filename string) {
 	}
 
 	// Now stage the file
-	read, _ := git.PlainOpen(memoDirectory)
-	work, _ := read.Worktree()
-	_, _ = work.Add(filename)
+	read, err := git.PlainOpen(memoDirectory)
+  if err != nil {
+    log.Panicf("%v open", err)
+  }
+	work, err := read.Worktree()
+  if err != nil {
+    log.Fatalf("%v read", err)
+  }
+  _, err = work.Add(filepath.Join(filename))
+  if err != nil {
+    log.Fatalf("%v add", err)
+  }
+  
+  stats, err := work.Status()
+  if err != nil {
+    log.Fatalf("%v stat", err)
+  }
+
+  fmt.Println(stats)
 
 	// Should now get the user git credentials
 	// Since the program can be run from anywhere, specify the starting location
@@ -51,7 +68,7 @@ func commit(commitMsg string, filename string) {
 	})
 
 	if err != nil {
-		log.Panic("Couldn't Commit")
+    log.Panicf("[%v]: Couldn't Commit", err)
 	}
 
 	obj, err := read.CommitObject(co)

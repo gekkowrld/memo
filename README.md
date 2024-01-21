@@ -16,7 +16,7 @@ This tool is built by the help of this tools:
 Use the install script
 
 ```sh
-/bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/gekkowrld/memo/HEAD/install.sh)"
+/bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/gekkowrld/memo/HEAD/install.py)"
 ```
 
 Or clone then use the install script, both work \*well!
