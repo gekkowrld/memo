@@ -1,23 +1,9 @@
 /*
 Copyright © 2024 Gekko Wrld
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 package cmd
 
 import (
-	"bufio"
 	"fmt"
 	"html/template"
 	"log"
@@ -35,6 +21,8 @@ import (
 	"github.com/gomarkdown/markdown/parser"
 )
 
+var memoNumber int
+
 // serveCmd represents the serve command
 var serveCmd = &cobra.Command{
 	Use:   "serve",
@@ -42,8 +30,14 @@ var serveCmd = &cobra.Command{
 	Long:  `View Your Memo in your favourite broswer!`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
-			fmt.Print("NotYetImplemented!")
-			displayIndex()
+      memoNumber, _ = strconv.Atoi(args[0])
+    	mux := http.NewServeMux()
+      mux.HandleFunc("/", displayIndividualFile)
+      log.Print("Server started on http://127.0.0.0:4000")
+	    err := http.ListenAndServe(":4000", mux)
+      if err != nil {
+        log.Print(err)
+      }
 		} else {
 			// Display The Index File
 			displayIndex()
@@ -60,53 +54,38 @@ type inputData struct {
 	Main         template.HTML
 	StyleSheet   template.CSS
 	ScriptSheet  template.JS
-	FaviconImage template.HTML
 }
 
 func serveStaticFile(fileType string) string {
-	homeFiles := filepath.Join(getKeyValue("configDir").(string))
-	readFile, err := os.Open(filepath.Join(homeFiles, "staticfiles"))
-	if err != nil {
-		log.Print(err)
-		return ""
-	}
+  var fileContent string
+  staticFiles := getKeyValue("StaticFiles").(string) // Files directory
+  filesInDir, err := os.ReadDir(staticFiles)
+  if err != nil {
+    log.Print(err)
+  }
 
-	if fileType == "favicon" {
-		faviconPath := filepath.Join(homeFiles, "assets", "favicon.ico")
-		faviconLink := fmt.Sprintf("<link rel=\"shortcut icon\" href=\"%s\" type=\"image/x-icon\">", faviconPath)
-		return faviconLink
-	}
+  jsFiles := regexp.MustCompile(`(?mi)\.js`)
+  cssFiles := regexp.MustCompile(`(?mi)\.css`)
 
-	var fileContent string
-	fileScanner := bufio.NewScanner(readFile)
-	fileScanner.Split(bufio.ScanLines)
-
-	// This file is expected to be small, so it is reasonable to
-	// read and subsequently process it
-	for fileScanner.Scan() {
-		text := fileScanner.Text()
-		// Check if the path is absolute or not
-		filelocation := text
-		if !filepath.IsAbs(filelocation) {
-			filelocation = filepath.Join(homeFiles, text)
-		}
-		fileExt := filepath.Ext(filelocation)
-		// Remove the . before actually doing anything
-		var withoutDot string
-		if fileExt != "" {
-			withoutDot = fileExt[1:]
-		}
-		if withoutDot == fileType {
-			fileByteCont, err := os.ReadFile(filelocation)
-			if err != nil {
-				log.Print(err)
-				continue
-			}
-			fileContent += string(fileByteCont)
-		}
-	}
-
-	readFile.Close()
+  for _, file := range filesInDir {
+    fileName := filepath.Join(staticFiles, file.Name())
+    if jsFiles.MatchString(fileName) && fileType == "js" {
+      fileByteCont, err := os.ReadFile(fileName)
+      if err != nil {
+        log.Print(err)
+        continue
+      }
+      fileContent += string(fileByteCont)
+    }
+    if cssFiles.MatchString(fileName) && fileType == "css" {
+      fileByteCont, err := os.ReadFile(fileName)
+      if err != nil {
+        log.Print(err)
+        continue
+      }
+      fileContent += string(fileByteCont)
+    }
+  }
 
 	return fileContent
 }
@@ -116,7 +95,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		displayCustom404(w, r)
 		return
 	}
-	homeFiles := filepath.Join(getKeyValue("configDir").(string), "assets")
+	homeFiles := filepath.Join(getKeyValue("StaticFiles").(string))
 	baseFile := filepath.Join(homeFiles, "base.html")
 	ts, err := template.New("base.html").ParseFiles(baseFile)
 
@@ -130,11 +109,11 @@ func home(w http.ResponseWriter, r *http.Request) {
 			fileTitle := getFileTitle(filepath.Join(memoDir, file.Name()))
 			re := regexp.MustCompile(`^(\d+)-`)
 			fileNumber := re.FindSubmatch([]byte(file.Name()))
-			forwardContent += fmt.Sprintf("<a class=\"main-link\" href=\"/view?id=%s\">%s - %s</a><br/>", fileNumber[1], fileNumber[1], fileTitle)
+			forwardContent += fmt.Sprintf("<a class=\"main-link\" href=\"/view?id=%s\">%s (%s)</a><br/>", fileNumber[1], fileTitle, fileNumber[1])
 		}
 	}
 
-	data := inputData{Title: "Home", Main: template.HTML(forwardContent), StyleSheet: template.CSS(serveStaticFile("css")), ScriptSheet: template.JS(serveStaticFile("js")), FaviconImage: template.HTML(serveStaticFile("favicon"))}
+	data := inputData{Title: "Home", Main: template.HTML(forwardContent), StyleSheet: template.CSS(serveStaticFile("css")), ScriptSheet: template.JS(serveStaticFile("js"))}
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -146,6 +125,45 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
+
+
+func displayIndividualFile(w http.ResponseWriter, r *http.Request) {
+    filename := matchMemoNumber(memoNumber)
+    content, err := os.ReadFile(filename)
+    if err != nil {
+        displayCustom404(w, r)
+        return
+    }
+
+    userHTML := mdToHTML(content)
+
+
+  ftitle := getFileTitle(filename)
+
+    homeFiles := filepath.Join(getKeyValue("StaticFiles").(string))
+    baseFile := filepath.Join(homeFiles, "base.html")
+    ts, err := template.New("base.html").ParseFiles(baseFile)
+
+    data := inputData{
+        Title:       ftitle,
+        Main:        template.HTML(userHTML),
+        StyleSheet: template.CSS(serveStaticFile("css")),
+        ScriptSheet: template.JS(serveStaticFile("js")),
+    }
+
+    if err != nil {
+        log.Print(err.Error())
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    err = ts.Execute(w, data)
+    if err != nil {
+        log.Print(err.Error())
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+    }
+}
+
 
 func viewFile(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
@@ -162,7 +180,7 @@ func viewFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userHTML := mdToHTML(content)
-	homeFiles := filepath.Join(getKeyValue("configDir").(string), "assets")
+	homeFiles := filepath.Join(getKeyValue("StaticFiles").(string))
 
 	baseFile := filepath.Join(homeFiles, "base.html")
 	ts, err := template.New("base.html").ParseFiles(baseFile)
@@ -192,7 +210,7 @@ func displayCustom404(w http.ResponseWriter, r *http.Request) {
 		</div>
 	</div>
   `
-	homeFiles := filepath.Join(getKeyValue("configDir").(string), "assets")
+	homeFiles := filepath.Join(getKeyValue("StaticFiles").(string))
 
 	baseFile := filepath.Join(homeFiles, "base.html")
 	ts, err := template.New("base.html").ParseFiles(baseFile)
@@ -214,7 +232,7 @@ func displayIndex() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/view", viewFile)
-	log.Print("Starting on Server: 4000")
+	log.Print("Serve opened at http://127.0.0.0:4000/")
 	err := http.ListenAndServe(":4000", mux)
 	log.Fatal(err)
 }
