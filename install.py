@@ -74,7 +74,6 @@ def install():
     except FileNotFoundError:
         pass
 
-
     if not download_prism:
         try:
             # Use curl to download the files
@@ -85,11 +84,13 @@ def install():
             pass
 
     if not download_prism:
-        print(f"Couldn't download the files for language highlighting, find them here: {PRISM_GIST}\n")
+        print(
+            f"Couldn't download the files for language highlighting, find them here: {PRISM_GIST}\n")
 
     # Compile the code with no debug info and optimizations
     print("Building the go app with verbose and optimizations ON\n")
-    subprocess.run(["go", "build", "-x", "-gcflags", "-l=4 -m", "-ldflags", "-s -w", "-o", "memo"])
+    subprocess.run(["go", "build", "-x", "-gcflags", "-l=4 -m",
+                   "-ldflags", "-s -w", "-o", "memo"])
 
     # Install the binary
     # Check if GOPATH is set
@@ -204,7 +205,9 @@ def install():
             print("Updated .bashrc to configure memo.")
 
         # Update the memo.bash file.
-        shutil.copy("completion/memo.bash", os.environ.get(f'XDG_DATA_HOME{memo_p}', '~/.local/share{memo_p}'))
+        shutil.copy("completion/memo.bash",
+                    os.environ.get(f'XDG_DATA_HOME{memo_p}', '~/.local/share{memo_p}'))
+
 
 if __name__ == "__main__":
     # Check if in repo (this will run install() if in repo)
