@@ -110,10 +110,10 @@ def install():
             # Create it
             os.makedirs(os.path.expanduser("~/.local/bin"))
         # Install
-        shutil.move("memo", os.path.expanduser("~/.local/bin"))
+        shutil.copy("memo", os.path.expanduser("~/.local/bin"))
     else:
         # Install
-        shutil.move("memo", os.environ["GOPATH"])
+        shutil.copy("memo", os.environ["GOPATH"])
 
     # Copy the assets
     # Check if XDG_DATA_HOME is set
