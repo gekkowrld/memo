@@ -85,12 +85,14 @@ def install():
 
     if not download_prism:
         print(
-            f"Couldn't download the files for language highlighting, find them here: {PRISM_GIST}\n")
+            f"Couldn't download the files for language highlighting, find them here: {PRISM_GIST}\n"
+        )
 
     # Compile the code with no debug info and optimizations
     print("Building the go app with verbose and optimizations ON\n")
-    subprocess.run(["go", "build", "-x", "-gcflags", "-l=4 -m",
-                   "-ldflags", "-s -w", "-o", "memo"])
+    subprocess.run(
+        ["go", "build", "-x", "-gcflags", "-l=4 -m", "-ldflags", "-s -w", "-o", "memo"]
+    )
 
     # Install the binary
     # Check if GOPATH is set
@@ -143,7 +145,7 @@ def install():
         "displaywidth": 0,
         "editconfig": False,
         "git": False,
-        "staticfiles": "~/.local/share/memo/"
+        "staticfiles": "~/.local/share/memo/",
     }
 
     # Check if XDG_CONFIG_HOME is set
@@ -187,12 +189,14 @@ def install():
     # Define the path to .bashrc and the source command
     bashrc_path = os.path.expanduser("~/.bashrc")
     memo_p = "/memo/memo.bash"
-    source_command = f"source {os.environ.get('XDG_DATA_HOME', '~/.local/share')}{memo_p}\n"
+    source_command = (
+        f"source {os.environ.get('XDG_DATA_HOME', '~/.local/share')}{memo_p}\n"
+    )
 
     # Check if .bashrc exists
     if os.path.exists(bashrc_path):
         # Read the contents of .bashrc
-        with open(bashrc_path, 'r') as bashrc_file:
+        with open(bashrc_path, "r") as bashrc_file:
             bashrc_contents = bashrc_file.readlines()
 
         # Check if the source command is already in .bashrc
@@ -200,13 +204,15 @@ def install():
             print(".bashrc is already configured with memo.")
         else:
             # Append the source command to .bashrc
-            with open(bashrc_path, 'a') as bashrc_file:
+            with open(bashrc_path, "a") as bashrc_file:
                 bashrc_file.write(source_command)
             print("Updated .bashrc to configure memo.")
 
         # Update the memo.bash file.
-        shutil.copy("completion/memo.bash",
-                    os.environ.get(f'XDG_DATA_HOME{memo_p}', '~/.local/share{memo_p}'))
+        shutil.copy(
+            "completion/memo.bash",
+            os.environ.get(f"XDG_DATA_HOME{memo_p}", "~/.local/share{memo_p}"),
+        )
 
 
 if __name__ == "__main__":
