@@ -1,18 +1,5 @@
 /*
 Copyright © 2024 Gekko Wrld
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 package cmd
 
@@ -20,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
-	"github.com/charmbracelet/huh"
-	"github.com/charmbracelet/huh/spinner"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/spf13/cobra"
@@ -30,7 +15,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"strconv"
-	"time"
 )
 
 // configCmd represents the config command
@@ -72,6 +56,7 @@ type Config struct {
 	DisplayWidth int    `toml:"displaywidth"`
 	EditConfig   bool   `toml:"editconfig"`
 	Git          bool   `toml:"git"`
+	StaticFiles  string `toml:"staticfiles"`
 	// A specialkey "config_dir" is where this config file lives
 	// it will be useless (redundant even) to add it in the file
 }
@@ -120,72 +105,12 @@ func getKeyValue(key string) any {
 }
 
 func editConfig() {
-	var conf Config
-	var saveFile bool
-	accessible, _ := strconv.ParseBool(os.Getenv("ACCESSIBLE"))
-	config_location, _ := ConvertToString(getKeyValue("configFile"))
-	if _, err := toml.DecodeFile(config_location, &conf); err != nil {
-		log.Fatal(err)
-	}
-	form := huh.NewForm(
-		huh.NewGroup(huh.NewNote().
-			Title("Memo - Describe your life in pure beauty").
-			Description("You are now editing your config file")),
-
-		huh.NewGroup(
-			huh.NewInput().
-				Title("MemoDir").
-				Value(&conf.MemoDir),
-			huh.NewInput().
-				Title("Editor").
-				Value(&conf.Editor),
-			huh.NewInput().
-				Title("Background Colour").
-				Value(&conf.ListFGColour),
-			huh.NewInput().
-				Title("Foregroud Colour").
-				Value(&conf.ListBGColour),
-			huh.NewSelect[bool]().
-				Options(huh.NewOptions(true, false)...).
-				Value(&conf.EditConfig).
-				Title("Edit by default when calling config"),
-			huh.NewSelect[bool]().
-				Options(huh.NewOptions(true, false)...).
-				Value(&conf.Git).
-				Title("Should the memos be tracked using git"),
-		),
-		huh.NewGroup(huh.NewConfirm().
-			Title("Would you like to save your configs?").
-			Value(&saveFile).
-			Affirmative("Yes!").
-			Negative("Nah!")),
-	)
-
-	err := form.Run()
+	// Open the default editor instead of doing it myself
+	configFilename := getKeyValue("config_location").(string)
+	err := openEditor(configFilename)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		fmt.Println("Something went wrong while editing the config file")
 	}
-
-	if saveFile {
-		saveFileSleep := func() {
-			time.Sleep(2 * time.Second)
-		}
-		if err = saveConfigToFile(config_location, conf); err != nil {
-			log.Fatal(err)
-		}
-		displayText := "Saving your config to " + config_location
-		err = spinner.New().Title(displayText).Accessible(accessible).Action(saveFileSleep).Run()
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println("Succesfully saved your file in ", config_location)
-	} else {
-		fmt.Println("Didn't save your config, please try again if you wish to change the config")
-	}
-
 }
 
 func saveConfigToFile(filename string, conf Config) error {
@@ -214,16 +139,10 @@ func viewConfig() {
 	)
 	re := lipgloss.NewRenderer(os.Stdout)
 	var (
-		// HeaderStyle is the lipgloss style used for the table headers.
-		HeaderStyle = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
-		// CellStyle is the base lipgloss style used for the table rows.
-		CellStyle = re.NewStyle().Padding(1, 2).Width(cellSize)
-		// OddRowStyle is the lipgloss style used for odd-numbered table rows.
-		OddRowStyle = CellStyle.Copy().Foreground(gray)
-		// EvenRowStyle is the lipgloss style used for even-numbered table rows.
+		HeaderStyle  = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
+		CellStyle    = re.NewStyle().Padding(1, 2).Width(cellSize)
+		OddRowStyle  = CellStyle.Copy().Foreground(gray)
 		EvenRowStyle = CellStyle.Copy().Foreground(lightGray)
-		// BorderStyle is the lipgloss style used for the table border.
-		//BorderStyle = lipgloss.NewStyle().Foreground(purple)
 	)
 	memoDir := getKeyValue("MemoDir").(string)
 	editor := getKeyValue("Editor").(string)
@@ -231,6 +150,7 @@ func viewConfig() {
 	listbg := getKeyValue("ListBGColour").(string)
 	editconf := strconv.FormatBool(getKeyValue("EditConfig").(bool))
 	configLoc := getKeyValue("config_location").(string)
+	staticFiles := getKeyValue("StaticFiles").(string)
 
 	if listfg == "" {
 		listfg = "NO Colour!"
@@ -246,6 +166,7 @@ func viewConfig() {
 		{"Foreground Colour", listfg},
 		{"Background Colour", listbg},
 		{"Config default to Edit", editconf},
+		{"Static files directory", staticFiles},
 	}
 
 	di := table.New().
