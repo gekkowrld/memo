@@ -12,7 +12,9 @@ def check_if_in_repo():
     import os
 
     if not os.path.exists(os.path.join(os.getcwd(), "main.go")):
-        print("You are not in a git repository. I'll have to clone it from upstream")
+        print(
+            "You are not in a git repository. I'll have to clone it from upstream"
+        )
         clone_from_upstream()
         # Move into the repo
         os.chdir("memo")
@@ -92,9 +94,10 @@ def install():
 
     # Compile the code with no debug info and optimizations
     print("Building the go app with verbose and optimizations ON\n")
-    subprocess.run(
-        ["go", "build", "-x", "-gcflags", "-l=4 -m", "-ldflags", "-s -w", "-o", "memo"]
-    )
+    subprocess.run([
+        "go", "build", "-x", "-gcflags", "-l=4 -m", "-ldflags", "-s -w", "-o",
+        "memo"
+    ])
 
     # Install the binary
     # Check if GOPATH is set
@@ -164,9 +167,11 @@ def install():
             # Create it
             os.makedirs(os.path.expanduser("~/.config/memo"))
         # Check if $HOME/.config/memo/config.toml exists
-        if not os.path.exists(os.path.expanduser("~/.config/memo/config.toml")):
+        if not os.path.exists(
+                os.path.expanduser("~/.config/memo/config.toml")):
             # Create it
-            with open(os.path.expanduser("~/.config/memo/config.toml"), "w") as f:
+            with open(os.path.expanduser("~/.config/memo/config.toml"),
+                      "w") as f:
                 for key, value in config.items():
                     f.write(f"{key} = {value}\n")
     else:
@@ -175,9 +180,11 @@ def install():
             # Create it
             os.makedirs(os.environ["XDG_CONFIG_HOME"] + "/memo")
         # Check if $XDG_CONFIG_HOME/memo/config.toml exists
-        if not os.path.exists(os.environ["XDG_CONFIG_HOME"] + "/memo/config.toml"):
+        if not os.path.exists(os.environ["XDG_CONFIG_HOME"] +
+                              "/memo/config.toml"):
             # Create it
-            with open(os.environ["XDG_CONFIG_HOME"] + "/memo/config.toml", "w") as f:
+            with open(os.environ["XDG_CONFIG_HOME"] + "/memo/config.toml",
+                      "w") as f:
                 for key, value in config.items():
                     f.write(f"{key} = {value}\n")
 
