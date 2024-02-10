@@ -44,7 +44,7 @@ def clone_from_upstream():
 
 def install():
     """Compile and install
-    
+
     Compile the golang code, installing the dependancy and then install the
         binary to the $GOPATH/bin directory.
     Then copy the assets to the $XDG_DATA_HOME directory.
