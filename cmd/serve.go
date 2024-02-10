@@ -30,14 +30,14 @@ var serveCmd = &cobra.Command{
 	Long:  `View Your Memo in your favourite broswer!`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
-      memoNumber, _ = strconv.Atoi(args[0])
-    	mux := http.NewServeMux()
-      mux.HandleFunc("/", displayIndividualFile)
-      log.Print("Server started on http://127.0.0.0:4000")
-	    err := http.ListenAndServe(":4000", mux)
-      if err != nil {
-        log.Print(err)
-      }
+			memoNumber, _ = strconv.Atoi(args[0])
+			mux := http.NewServeMux()
+			mux.HandleFunc("/", displayIndividualFile)
+			log.Print("Server started on http://127.0.0.0:4000")
+			err := http.ListenAndServe(":4000", mux)
+			if err != nil {
+				log.Print(err)
+			}
 		} else {
 			// Display The Index File
 			displayIndex()
@@ -50,42 +50,42 @@ func init() {
 }
 
 type inputData struct {
-	Title        string
-	Main         template.HTML
-	StyleSheet   template.CSS
-	ScriptSheet  template.JS
+	Title       string
+	Main        template.HTML
+	StyleSheet  template.CSS
+	ScriptSheet template.JS
 }
 
 func serveStaticFile(fileType string) string {
-  var fileContent string
-  staticFiles := getKeyValue("StaticFiles").(string) // Files directory
-  filesInDir, err := os.ReadDir(staticFiles)
-  if err != nil {
-    log.Print(err)
-  }
+	var fileContent string
+	staticFiles := getKeyValue("StaticFiles").(string) // Files directory
+	filesInDir, err := os.ReadDir(staticFiles)
+	if err != nil {
+		log.Print(err)
+	}
 
-  jsFiles := regexp.MustCompile(`(?mi)\.js`)
-  cssFiles := regexp.MustCompile(`(?mi)\.css`)
+	jsFiles := regexp.MustCompile(`(?mi)\.js`)
+	cssFiles := regexp.MustCompile(`(?mi)\.css`)
 
-  for _, file := range filesInDir {
-    fileName := filepath.Join(staticFiles, file.Name())
-    if jsFiles.MatchString(fileName) && fileType == "js" {
-      fileByteCont, err := os.ReadFile(fileName)
-      if err != nil {
-        log.Print(err)
-        continue
-      }
-      fileContent += string(fileByteCont)
-    }
-    if cssFiles.MatchString(fileName) && fileType == "css" {
-      fileByteCont, err := os.ReadFile(fileName)
-      if err != nil {
-        log.Print(err)
-        continue
-      }
-      fileContent += string(fileByteCont)
-    }
-  }
+	for _, file := range filesInDir {
+		fileName := filepath.Join(staticFiles, file.Name())
+		if jsFiles.MatchString(fileName) && fileType == "js" {
+			fileByteCont, err := os.ReadFile(fileName)
+			if err != nil {
+				log.Print(err)
+				continue
+			}
+			fileContent += string(fileByteCont)
+		}
+		if cssFiles.MatchString(fileName) && fileType == "css" {
+			fileByteCont, err := os.ReadFile(fileName)
+			if err != nil {
+				log.Print(err)
+				continue
+			}
+			fileContent += string(fileByteCont)
+		}
+	}
 
 	return fileContent
 }
@@ -126,44 +126,41 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func displayIndividualFile(w http.ResponseWriter, r *http.Request) {
-    filename := matchMemoNumber(memoNumber)
-    content, err := os.ReadFile(filename)
-    if err != nil {
-        displayCustom404(w, r)
-        return
-    }
+	filename := matchMemoNumber(memoNumber)
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		displayCustom404(w, r)
+		return
+	}
 
-    userHTML := mdToHTML(content)
+	userHTML := mdToHTML(content)
 
+	ftitle := getFileTitle(filename)
 
-  ftitle := getFileTitle(filename)
+	homeFiles := filepath.Join(getKeyValue("StaticFiles").(string))
+	baseFile := filepath.Join(homeFiles, "base.html")
+	ts, err := template.New("base.html").ParseFiles(baseFile)
 
-    homeFiles := filepath.Join(getKeyValue("StaticFiles").(string))
-    baseFile := filepath.Join(homeFiles, "base.html")
-    ts, err := template.New("base.html").ParseFiles(baseFile)
+	data := inputData{
+		Title:       ftitle,
+		Main:        template.HTML(userHTML),
+		StyleSheet:  template.CSS(serveStaticFile("css")),
+		ScriptSheet: template.JS(serveStaticFile("js")),
+	}
 
-    data := inputData{
-        Title:       ftitle,
-        Main:        template.HTML(userHTML),
-        StyleSheet: template.CSS(serveStaticFile("css")),
-        ScriptSheet: template.JS(serveStaticFile("js")),
-    }
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
-    if err != nil {
-        log.Print(err.Error())
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
-
-    err = ts.Execute(w, data)
-    if err != nil {
-        log.Print(err.Error())
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-    }
+	err = ts.Execute(w, data)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
-
 
 func viewFile(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))

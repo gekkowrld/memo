@@ -56,7 +56,7 @@ type Config struct {
 	DisplayWidth int    `toml:"displaywidth"`
 	EditConfig   bool   `toml:"editconfig"`
 	Git          bool   `toml:"git"`
-  StaticFiles  string `toml:"staticfiles"`
+	StaticFiles  string `toml:"staticfiles"`
 	// A specialkey "config_dir" is where this config file lives
 	// it will be useless (redundant even) to add it in the file
 }
@@ -104,15 +104,14 @@ func getKeyValue(key string) any {
 	return nil
 }
 
-func editConfig()  {
-  // Open the default editor instead of doing it myself
-  configFilename := getKeyValue("config_location").(string)
-  err := openEditor(configFilename)
-  if err != nil {
-    fmt.Println("Something went wrong while editing the config file")
-  }
+func editConfig() {
+	// Open the default editor instead of doing it myself
+	configFilename := getKeyValue("config_location").(string)
+	err := openEditor(configFilename)
+	if err != nil {
+		fmt.Println("Something went wrong while editing the config file")
+	}
 }
-
 
 func saveConfigToFile(filename string, conf Config) error {
 	file, err := os.Create(filename)
@@ -140,9 +139,9 @@ func viewConfig() {
 	)
 	re := lipgloss.NewRenderer(os.Stdout)
 	var (
-		HeaderStyle = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
-		CellStyle = re.NewStyle().Padding(1, 2).Width(cellSize)
-		OddRowStyle = CellStyle.Copy().Foreground(gray)
+		HeaderStyle  = re.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
+		CellStyle    = re.NewStyle().Padding(1, 2).Width(cellSize)
+		OddRowStyle  = CellStyle.Copy().Foreground(gray)
 		EvenRowStyle = CellStyle.Copy().Foreground(lightGray)
 	)
 	memoDir := getKeyValue("MemoDir").(string)
@@ -151,7 +150,7 @@ func viewConfig() {
 	listbg := getKeyValue("ListBGColour").(string)
 	editconf := strconv.FormatBool(getKeyValue("EditConfig").(bool))
 	configLoc := getKeyValue("config_location").(string)
-  staticFiles := getKeyValue("StaticFiles").(string)
+	staticFiles := getKeyValue("StaticFiles").(string)
 
 	if listfg == "" {
 		listfg = "NO Colour!"
@@ -167,7 +166,7 @@ func viewConfig() {
 		{"Foreground Colour", listfg},
 		{"Background Colour", listbg},
 		{"Config default to Edit", editconf},
-    {"Static files directory", staticFiles},
+		{"Static files directory", staticFiles},
 	}
 
 	di := table.New().
