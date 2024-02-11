@@ -55,7 +55,6 @@ def install():
 
     """
     import os
-    import shutil
     import subprocess
     import sys
 
@@ -110,10 +109,10 @@ def install():
             # Create it
             os.makedirs(os.path.expanduser("~/.local/bin"))
         # Install
-        shutil.copy("memo", os.path.expanduser("~/.local/bin"))
+        subprocess.run(["cp", "-ruv", "memo", os.path.expanduser("~/.local/bin")])
     else:
         # Install
-        shutil.copy("memo", os.environ["GOPATH"])
+        subprocess.run(["cp","-ruv", "memo", os.environ["GOPATH"]])
 
     # Copy the assets
     # Check if XDG_DATA_HOME is set
@@ -126,10 +125,10 @@ def install():
             # Create it
             os.makedirs(os.path.expanduser("~/.local/share"))
         # Copy
-        shutil.copytree("assets", os.path.expanduser("~/.local/share/memo"))
+        subprocess.run(["cp", "-ruv", "assets", os.path.expanduser("~/.local/share/memo")])
     else:
         # Copy
-        shutil.copytree("assets", os.environ["XDG_DATA_HOME"] + "/memo")
+        subprocess.run(["cp", "-ruv", "assets", os.environ["XDG_DATA_HOME"] + "/memo"])
 
     # Check if there is a config, create it if not write the default values
     """Default config values (~/.config/memo/config.toml)
@@ -218,9 +217,9 @@ def install():
             print("Updated .bashrc to configure memo.")
 
         # Update the memo.bash file.
-        shutil.copy(
+        subprocess.run(["",
             "completion/memo.bash",
-            os.environ.get(f"XDG_DATA_HOME{memo_p}", "~/.local/share{memo_p}"),
+            os.environ.get(f"XDG_DATA_HOME{memo_p}", "~/.local/share{memo_p}")]
         )
 
 
